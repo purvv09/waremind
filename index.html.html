@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>WARE-MIND</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+min-height:100vh;
+background:linear-gradient(270deg,#0f2027,#203a43,#2c5364);
+background-size:600% 600%;
+animation:bgmove 15s ease infinite;
+color:white;
+}
+
+@keyframes bgmove{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
+}
+
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 30px;
+background:rgba(0,0,0,0.4);
+backdrop-filter:blur(10px);
+}
+
+.logo{
+margin:0;
+font-size:22px;
+}
+
+.logoutBtn{
+background:linear-gradient(45deg,#ff4b2b,#ff416c);
+border:none;
+border-radius:8px;
+padding:8px 12px;
+font-size:18px;
+cursor:pointer;
+}
+
+.container{
+padding:30px;
+max-width:1100px;
+margin:auto;
+}
+
+.card{
+background:rgba(255,255,255,0.1);
+backdrop-filter:blur(12px);
+border-radius:15px;
+padding:20px;
+margin-bottom:20px;
+box-shadow:0 8px 32px rgba(0,0,0,0.3);
+}
+
+input,select{
+padding:10px;
+margin:5px;
+border-radius:8px;
+border:none;
+}
+
+button{
+padding:10px 14px;
+background:linear-gradient(45deg,#00c6ff,#0072ff);
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:rgba(255,255,255,0.1);
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid rgba(255,255,255,0.2);
+}
+
+.auth{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.auth-box{
+background:rgba(255,255,255,0.15);
+padding:35px;
+border-radius:20px;
+width:300px;
+text-align:center;
+}
+
+.link{
+color:#00c6ff;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SIGNUP -->
+
+<div id="signupPage" class="auth">
+<div class="auth-box">
+
+<h2>Create Account</h2>
+
+<input id="newUser" placeholder="Username"><br>
+<input id="newPass" type="password" placeholder="Password"><br>
+
+<button onclick="signup()">Create Account</button>
+
+<p>Already account? <span class="link" onclick="showLogin()">Login</span></p>
+
+</div>
+</div>
+
+
+<!-- LOGIN -->
+
+<div id="loginPage" class="auth" style="display:none">
+<div class="auth-box">
+
+<h2>Login</h2>
+
+<input id="username" placeholder="Username"><br>
+<input id="password" type="password" placeholder="Password"><br>
+
+<button onclick="login()">Login</button>
+
+<p>No account? <span class="link" onclick="showSignup()">Sign Up</span></p>
+
+<p id="loginMsg"></p>
+
+</div>
+</div>
+
+
+<!-- DASHBOARD -->
+
+<div id="dashboard" style="display:none">
+
+<header class="topbar">
+
+<h2 class="logo">🏭 WARE-MIND</h2>
+
+<button class="logoutBtn" onclick="logout()">⎋</button>
+
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<h3>Add Product</h3>
+
+<input id="name" placeholder="Product Name">
+<input id="qty" type="number" placeholder="Quantity">
+
+<select id="zone">
+<option>Zone A</option>
+<option>Zone B</option>
+<option>Zone C</option>
+</select>
+
+<input id="shelf" placeholder="Shelf">
+
+<button onclick="addProduct()">Add</button>
+
+</div>
+
+
+<div class="card">
+
+<h3>Inventory Stats</h3>
+
+<p>Total Products: <span id="totalProducts"></span></p>
+<p>Low Stock: <span id="lowCount"></span></p>
+<p>Out of Stock: <span id="outCount"></span></p>
+
+<h3>⚠ Low Stock Products</h3>
+<ul id="lowStock"></ul>
+
+<button onclick="downloadData()">Download Inventory</button>
+
+</div>
+
+
+<div class="card">
+
+<input id="search" placeholder="Search product" onkeyup="searchProduct()">
+<input id="idSearch" placeholder="Search by ID">
+<button onclick="searchById()">Find</button>
+
+<button onclick="showHistory()">View History</button>
+
+<table id="table">
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Qty</th>
+<th>Status</th>
+<th>Zone</th>
+<th>Shelf</th>
+<th>Move</th>
+<th>Deliver</th>
+<th>Edit</th>
+<th>Delete</th>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+</div>
+
+<script>
+
+let users=JSON.parse(localStorage.getItem("users"))||[]
+let products=JSON.parse(localStorage.getItem("products"))||[]
+let history=JSON.parse(localStorage.getItem("history"))||[]
+
+function saveData(){
+
+localStorage.setItem("products",JSON.stringify(products))
+localStorage.setItem("history",JSON.stringify(history))
+
+}
+
+function signup(){
+
+let u=newUser.value
+let p=newPass.value
+
+users.push({u,p})
+
+localStorage.setItem("users",JSON.stringify(users))
+
+signupPage.style.display="none"
+dashboard.style.display="block"
+
+render()
+
+}
+
+function login(){
+
+let u=username.value
+let p=password.value
+
+let valid=users.find(x=>x.u===u && x.p===p)
+
+if(valid){
+
+loginPage.style.display="none"
+dashboard.style.display="block"
+
+render()
+
+}else{
+
+loginMsg.innerText="Invalid login"
+
+}
+
+}
+
+function logout(){
+
+dashboard.style.display="none"
+loginPage.style.display="flex"
+
+}
+
+function showLogin(){
+
+signupPage.style.display="none"
+loginPage.style.display="flex"
+
+}
+
+function showSignup(){
+
+loginPage.style.display="none"
+signupPage.style.display="flex"
+
+}
+
+function addProduct(){
+
+let name=document.getElementById("name").value
+let qty=parseInt(document.getElementById("qty").value)
+let zone=document.getElementById("zone").value
+let shelf=document.getElementById("shelf").value
+
+let id=Date.now()
+
+products.push({id,name,qty,zone,shelf})
+
+history.push(new Date().toLocaleString()+" Added "+name)
+
+saveData()
+
+render()
+
+}
+
+function moveProduct(id){
+
+let p=products.find(x=>x.id===id)
+
+let newZone=prompt("New Zone")
+let newShelf=prompt("New Shelf")
+
+p.zone=newZone
+p.shelf=newShelf
+
+history.push("Moved "+p.name)
+
+saveData()
+
+render()
+
+}
+
+function deliverProduct(id){
+
+let p=products.find(x=>x.id===id)
+
+let q=prompt("Delivery qty")
+
+if(q>p.qty){
+alert("Not enough stock")
+return
+}
+
+p.qty=p.qty-q
+
+if(p.qty<5){
+alert("⚠ Low stock for "+p.name)
+}
+
+history.push("Delivered "+q+" "+p.name)
+
+saveData()
+
+render()
+
+}
+
+function editProduct(id){
+
+let p=products.find(x=>x.id===id)
+
+p.name=prompt("Edit name",p.name)
+p.qty=parseInt(prompt("Edit qty",p.qty))
+
+history.push("Edited "+p.name)
+
+saveData()
+
+render()
+
+}
+
+function deleteProduct(id){
+
+let p=products.find(x=>x.id===id)
+
+products=products.filter(x=>x.id!==id)
+
+history.push("Deleted "+p.name)
+
+saveData()
+
+render()
+
+}
+
+function render(){
+
+let table=document.getElementById("table")
+
+table.innerHTML=`<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Qty</th>
+<th>Status</th>
+<th>Zone</th>
+<th>Shelf</th>
+<th>Move</th>
+<th>Deliver</th>
+<th>Edit</th>
+<th>Delete</th>
+</tr>`
+
+let low=0
+let out=0
+
+let lowList=document.getElementById("lowStock")
+lowList.innerHTML=""
+
+products.forEach(p=>{
+
+let status="In Stock"
+
+if(p.qty==0){
+status="Out of Stock"
+out++
+}
+else if(p.qty<5){
+status="Low Stock"
+low++
+lowList.innerHTML+=`<li>${p.name} (${p.qty})</li>`
+}
+
+table.innerHTML+=`
+
+<tr>
+<td>${p.id}</td>
+<td>${p.name}</td>
+<td>${p.qty}</td>
+<td>${status}</td>
+<td>${p.zone}</td>
+<td>${p.shelf}</td>
+<td><button onclick="moveProduct(${p.id})">Move</button></td>
+<td><button onclick="deliverProduct(${p.id})">Deliver</button></td>
+<td><button onclick="editProduct(${p.id})">Edit</button></td>
+<td><button onclick="deleteProduct(${p.id})">Delete</button></td>
+</tr>`
+
+})
+
+totalProducts.innerText=products.length
+lowCount.innerText=low
+outCount.innerText=out
+
+}
+
+function searchProduct(){
+
+let input=document.getElementById("search").value.toLowerCase()
+
+let rows=document.querySelectorAll("#table tr")
+
+rows.forEach((row,i)=>{
+
+if(i===0)return
+
+let name=row.children[1].innerText.toLowerCase()
+
+row.style.display=name.includes(input)?"":"none"
+
+})
+
+}
+
+function searchById(){
+
+let id=idSearch.value
+
+let p=products.find(x=>x.id==id)
+
+if(p){
+alert("Product: "+p.name+" Qty:"+p.qty)
+}else{
+alert("Not found")
+}
+
+}
+
+function showHistory(){
+
+let win=window.open("","History")
+
+let html="<h2>Inventory History</h2><ul>"
+
+history.forEach(h=>{
+html+="<li>"+h+"</li>"
+})
+
+html+="</ul>"
+
+win.document.write(html)
+
+}
+
+function downloadData(){
+
+let data=JSON.stringify(products,null,2)
+
+let blob=new Blob([data],{type:"application/json"})
+
+let a=document.createElement("a")
+
+a.href=URL.createObjectURL(blob)
+a.download="inventory.json"
+a.click()
+
+}
+
+</script>
+
+</body>
+</html>
