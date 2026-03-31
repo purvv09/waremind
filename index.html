@@ -1,520 +1,247 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>WARE-MIND</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heyy My Private Soul - Full Flow</title>
 <style>
-
-body{
-font-family:Arial;
-margin:0;
-min-height:100vh;
-background:linear-gradient(270deg,#0f2027,#203a43,#2c5364);
-background-size:600% 600%;
-animation:bgmove 15s ease infinite;
-color:white;
-}
-
-@keyframes bgmove{
-0%{background-position:0% 50%}
-50%{background-position:100% 50%}
-100%{background-position:0% 50%}
-}
-
-.topbar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:15px 30px;
-background:rgba(0,0,0,0.4);
-backdrop-filter:blur(10px);
-}
-
-.logo{
-margin:0;
-font-size:22px;
-}
-
-.logoutBtn{
-background:linear-gradient(45deg,#ff4b2b,#ff416c);
-border:none;
-border-radius:8px;
-padding:8px 12px;
-font-size:18px;
-cursor:pointer;
-}
-
-.container{
-padding:30px;
-max-width:1100px;
-margin:auto;
-}
-
-.card{
-background:rgba(255,255,255,0.1);
-backdrop-filter:blur(12px);
-border-radius:15px;
-padding:20px;
-margin-bottom:20px;
-box-shadow:0 8px 32px rgba(0,0,0,0.3);
-}
-
-input,select{
-padding:10px;
-margin:5px;
-border-radius:8px;
-border:none;
-}
-
-button{
-padding:10px 14px;
-background:linear-gradient(45deg,#00c6ff,#0072ff);
-color:white;
-border:none;
-border-radius:8px;
-cursor:pointer;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-background:rgba(255,255,255,0.1);
-}
-
-th,td{
-padding:10px;
-border-bottom:1px solid rgba(255,255,255,0.2);
-}
-
-.auth{
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-}
-
-.auth-box{
-background:rgba(255,255,255,0.15);
-padding:35px;
-border-radius:20px;
-width:300px;
-text-align:center;
-}
-
-.link{
-color:#00c6ff;
-cursor:pointer;
-}
-
+body { font-family:'Segoe UI',sans-serif; background: linear-gradient(to bottom,#ffdde1,#ee9ca7); display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; text-align:center; margin:0; padding:20px;}
+.hidden{display:none;}
+.message{font-size:1.2em; color:#333; margin-bottom:50px;}
+button,input[type=text]{padding:10px 20px;border-radius:20px;border:none;margin-top:15px;font-size:1em;cursor:pointer;}
+button:hover{background-color:#ff355e;color:white;transform:scale(1.05);}
+input[type=text]{text-align:center;width:60%;margin-right:10px;}
+.panda-btn{font-size:3em;background:none;border:none;cursor:pointer;transition:transform 0.3s;}
+.panda-btn:hover{transform:scale(1.3);}
+.content,.question{background:#fff0f5;border-radius:20px;padding:20px;margin-top:20px;width:90%;max-width:600px;box-shadow:0 4px 10px rgba(0,0,0,0.1); text-align:left;}
 </style>
 </head>
-
 <body>
 
-<!-- SIGNUP -->
-
-<div id="signupPage" class="auth">
-<div class="auth-box">
-
-<h2>Create Account</h2>
-
-<input id="newUser" placeholder="Username"><br>
-<input id="newPass" type="password" placeholder="Password"><br>
-
-<button onclick="signup()">Create Account</button>
-
-<p>Already account? <span class="link" onclick="showLogin()">Login</span></p>
-
-</div>
+<!-- FIRST PAGE -->
+<div id="firstMeetPage">
+    <h1>Heyy My Private Soul 💗</h1>
+    <p>Click below to go away 😏</p>
+    <button id="firstClickBtn">Click Here</button>
 </div>
 
-
-<!-- LOGIN -->
-
-<div id="loginPage" class="auth" style="display:none">
-<div class="auth-box">
-
-<h2>Login</h2>
-
-<input id="username" placeholder="Username"><br>
-<input id="password" type="password" placeholder="Password"><br>
-
-<button onclick="login()">Login</button>
-
-<p>No account? <span class="link" onclick="showSignup()">Sign Up</span></p>
-
-<p id="loginMsg"></p>
-
-</div>
+<!-- FIRST DATE -->
+<div id="firstDateQuestion" class="hidden">
+    <p>Which date considered we for our first meet date?</p>
+    <input type="text" id="firstDateInput" placeholder="DD MM YYYY">
+    <button id="firstDateBtn">Submit</button>
 </div>
 
+<!-- MESSAGE & PANDA -->
+<div id="code2Message" class="message hidden">Su vichare che gandi kai nathi avtu ej n ubhi re hoon ave ave 💕</div>
+<button id="code2PandaBtn" class="panda-btn hidden">🐼</button>
 
-<!-- DASHBOARD -->
-
-<div id="dashboard" style="display:none">
-
-<header class="topbar">
-
-<h2 class="logo">🏭 WARE-MIND</h2>
-
-<button class="logoutBtn" onclick="logout()">⎋</button>
-
-</header>
-
-<div class="container">
-
-<div class="card">
-
-<h3>Add Product</h3>
-
-<input id="name" placeholder="Product Name">
-<input id="qty" type="number" placeholder="Quantity">
-
-<select id="zone">
-<option>Zone A</option>
-<option>Zone B</option>
-<option>Zone C</option>
-</select>
-
-<input id="shelf" placeholder="Shelf">
-
-<button onclick="addProduct()">Add</button>
-
+<!-- CONTENTS AND QUESTIONS 1-8 -->
+<!-- Content 1 -->
+<div id="content1" class="content hidden">
+<h2>Hey Hanii….. 💗</h2>
+<p>Ik aaa badhu tara mate thodu alag chee unique chee suspense vadu chee 😏<br><br>
+But trust me at the end tane bau bau bauuu j maja avse 😍<br><br>
+Ane haaaa Ghana badha surprise avana che ama so be ready 🎁✨<br><br>
+Ane haaan exam pati cheee aaje so mast enjoy karje 😉😉<br><br>
+<b>Let’s gooo 🚀❤️</b>
+</p>
+<button onclick="document.getElementById('content1').style.display='none'; document.getElementById('question1').style.display='block';">Next</button>
 </div>
 
-
-<div class="card">
-
-<h3>Inventory Stats</h3>
-
-<p>Total Products: <span id="totalProducts"></span></p>
-<p>Low Stock: <span id="lowCount"></span></p>
-<p>Out of Stock: <span id="outCount"></span></p>
-
-<h3>⚠ Low Stock Products</h3>
-<ul id="lowStock"></ul>
-
-<button onclick="downloadData()">Download Inventory</button>
-
+<div id="question1" class="question hidden">
+<p><b>Question 1:</b> Apdi banne vache pelo jagdo kem thayo to? 😏</p>
+<input type="text" id="answer1">
+<button onclick="checkAnswer(1,'answer1')">Submit</button>
 </div>
 
-
-<div class="card">
-
-<input id="search" placeholder="Search product" onkeyup="searchProduct()">
-<input id="idSearch" placeholder="Search by ID">
-<button onclick="searchById()">Find</button>
-
-<button onclick="showHistory()">View History</button>
-
-<table id="table">
-
-<tr>
-<th>ID</th>
-<th>Name</th>
-<th>Qty</th>
-<th>Status</th>
-<th>Zone</th>
-<th>Shelf</th>
-<th>Move</th>
-<th>Deliver</th>
-<th>Edit</th>
-<th>Delete</th>
-</tr>
-
-</table>
-
+<div id="content2" class="content hidden">
+<h2>Heyyyy dikraaaaaaa… 💗</h2>
+<p>Bau miss karu chu yarrr 🥺<br><br>
+Atiyare tane vate vate dikraaa betuuuu dhingli avu badhu kevanu pn still tane evu na lage etle kai dau chu haaa pachi delete kari dau chu 😅😅<br><br>
+But haaan kai dau… tara mate evu nathi ❤️<br><br>
+Haan mane b nai Revatu 🫠🫠<br><br>
+Anyway tu jyare ke bhai hu akhooo 🫠🫠🫠</p>
+<button onclick="document.getElementById('content2').style.display='none'; document.getElementById('question2').style.display='block';">Next</button>
 </div>
 
+<div id="question2" class="question hidden">
+<p><b>Question 2:</b> Taru sau thi pela naam me su padyu tu? 😏</p>
+<input type="text" id="answer2">
+<button onclick="checkAnswer(2,'answer2')">Submit</button>
 </div>
+
+<div id="content3" class="content hidden">
+<h2>Vandriii 🫠❤️</h2>
+<p>Hamna Apde vat thai pela j divas thi tane like haaaan je feel ayi like aaa kaik alag chee 😏<br><br>
+Nd all je b tara heart ma hoy I don’t want to know properly but haaan yarrrrrr 💗<br><br>
+Apde malya tyar thi hatu k haaa aaa chokri alag chee yarrr 🥺<br><br>
+Am badha thi alag… thodi bau nakhradi chee natakdi cheee 😂<br><br>
+Pan haaan chee bau sidhi ❤️<br><br>
+Starting ma tu keti n jo k atiyare b ke ke mare mrg nai karva… ik all that reason 😌<br><br>
+Pele thi j khabar padi gai ti mane badhi tu su chee su nai 😏<br><br>
+Aa te tane stalk nati kari haaan 😂 odkhi ti me tane etle evu na vicharti barabar 😌</p>
+<button onclick="document.getElementById('content3').style.display='none'; document.getElementById('question3').style.display='block';">Next</button>
+</div>
+
+<div id="question3" class="question hidden">
+<p><b>Question 3:</b> Evi kai vastu hati jema tane sau thi vadhare gusso avto? 😏</p>
+<input type="text" id="answer3">
+<button onclick="checkAnswer(3,'answer3')">Submit</button>
+</div>
+
+<!-- Content4 -->
+<div id="content4" class="content hidden">
+<h2>Special Heartfelt Moment 💝</h2>
+<p>Atla time maa Apde like Ghana jagda karya, Ghani vato kari, Ghana sapna b joya, Farvana nd all.<br><br>
+Kyarek thodi var Apde banne Gaya like Atiyare Apde banne betha chiye hocco maa e rite.<br><br>
+Ek vat to mane kbr padi chee: tari tu mane muki n nai javani kyay tu yarrrrr tu cheeee, hu tan explain nai kari shakvano kyarey, but haaaan inner me maa ghanu badhu chee, like e tane hu pachi kais thoda time pachi.</p>
+<button onclick="document.getElementById('content4').style.display='none'; document.getElementById('question4').style.display='block';">Next</button>
+</div>
+
+<div id="question4" class="question hidden">
+<p><b>Question 4:</b> Evi kai te kidheli vat chee je mara heart ma bau bau bau bau bau jjj andar sudhi chee? 😏</p>
+<input type="text" id="answer4">
+<button onclick="checkAnswer(4,'answer4')">Submit</button>
+</div>
+
+<!-- Content5 -->
+<div id="content5" class="content hidden">
+<h2>Heartfelt Moments 💖</h2>
+<p>Te mane puchyu: "Tu kbr betuuuu mara thi kantali to nai jay ne…"<br><br>
+Have je chokri e mari life ma atla sara kam karya hoy, maru atlu saru vicharyu hoy, mara mate atlu karyu hoy, mara mate tont sambhdya hoy.<br><br>
+Jyare odkhta b nata tyare b mara mate tont sambhdya, ta mara jagda sahan karya, ta mari wahiyat vato sahan kari ti, mara thoughts change karya cheee, mane agad vadharyo chee life maa.<br><br>
+Ane e b kai j need vagar so tane kmni bhulay yarrrr. Tu to mane Adadhi rate uthu toy yad ave ne, tane bhulay thodi. Ane Tara thi to divas chalu thay ane khatam b, tu to tu cho yarrr, tar thi koi divas na kantadu.</p>
+<button onclick="document.getElementById('content5').style.display='none'; document.getElementById('question5').style.display='block';">Next</button>
+</div>
+
+<div id="question5" class="question hidden">
+<p><b>Question 5:</b> Hu tane su bolau to sau thi vadhare game? 😏</p>
+<input type="text" id="answer5">
+<button onclick="checkAnswer(5,'answer5')">Submit</button>
+</div>
+
+<!-- Content6 -->
+<div id="content6" class="content hidden">
+<h2>Best Moment 🫠❤️</h2>
+<p>Ik Atiyare mar thi prem Thodo vadhare Thai jay chee 😅😅 but yarrrr su karu mane kbr padi hu to tar ladlo chuuu hu toh game e kari shakish to yarrrrr nai Revatu mar thi.<br><br>
+Ane Emay tu dikuuu betuu kai de Tya to mar andar nu badak je gandu thay 😅😂😂 sorry but haaan yarrrrrr bau ganduu Thai jay tu yarrrr.<br><br>
+Bau dayiii manas cheee te man bau samjyo chee te maru vicharyu b chee am bau j badhu karyu cheee 🫠🫠🧿</p>
+<button onclick="document.getElementById('content6').style.display='none'; document.getElementById('question6').style.display='block';">Next</button>
+</div>
+
+<div id="question6" class="question hidden">
+<p><b>Question 6:</b> Best moment Atiyar sudhi no mari side thi? 😏</p>
+<input type="text" id="answer6">
+<button onclick="checkAnswer(6,'answer6')">Submit</button>
+</div>
+
+<!-- Content7 -->
+<div id="content7" class="content hidden">
+<h2>Favourite Dialog 😂</h2>
+<p>Ehhhh dhingliiiiii tu Atiyare mari Baju ma bethi cheee brbr ane Ice cream ma Dhyan b nai taru thodu khai le ne betuuuuuu…… khai lidhu n to agad bak bak karu 😅😂<br><br>
+Tu km avi chee yarrr like me atlu badhu karyu past maa toy mane muki n nai jati kmmm yarrrrr.<br><br>
+Avu to Su chee mara maa k tu atlu kare chee mara mate naa hu kai etli sari personality vado chu naa saro lagu chu nature no Thodo toxic chu Magaj to Thodo adigel chu Ane naa kai topper chu.<br><br>
+Su karva te atlu karyu mara mate tan to ketla aya hase yarrrr. Tu good looking chee, caring chee, nature saro chee, cuteness chee. Ketlu badhu cheee ketla sara aya hase pn toy te man select karyo as a best friendddddde am km yarrrrrrr.</p>
+<button onclick="document.getElementById('content7').style.display='none'; document.getElementById('question7').style.display='block';">Next</button>
+</div>
+
+<div id="question7" class="question hidden">
+<p><b>Question 7:</b> Mehsana no favourite dialog? 😏</p>
+<input type="text" id="answer7">
+<button onclick="checkAnswer(7,'answer7')">Submit</button>
+</div>
+
+<!-- Content8 -->
+<div id="content8" class="content hidden">
+<h2>Special Vibe 😏🫠</h2>
+<p>Mane tari kai vastu sau thi vadhare game 🫠<br>
+Dekh tu manas ek chee pn roles tara bau cheee mane jarur hoy tyare tu mari sathi bani gai hoy masti karvi hoy tyare friend prem karto hov tyare mari stree Sakhi vato karto hov to mari hanidaaa kand karvana tu mari crime partner roto hov to mari teacher kharab karto hov to mari guru like tu manas chee k Vadapau yarrrr ek Vadapau n andar Ketlu badhu ave koik cheese nakhe koik mayo koik vegetable koik kai koik kai haaan mane kbr vandrii tane olu sekelu Bhave 😂😂</p>
+<button onclick="document.getElementById('content8').style.display='none'; document.getElementById('question8').style.display='block';">Next</button>
+</div>
+
+<div id="question8" class="question hidden">
+<p><b>Question 8:</b> Mane tari kai vastu sau thi vadhare game 🫠</p>
+<input type="text" id="answer8">
+<button onclick="checkAnswer(8,'answer8')">Submit</button>
+</div>
+
+<!-- Questions 9-11 directly -->
+<div id="question9" class="question hidden">
+<p><b>Question 9:</b> Mari Sathe rais n ?</p>
+<input type="text" id="answer9">
+<button onclick="checkAnswer(9,'answer9')">Submit</button>
+</div>
+
+<div id="question10" class="question hidden">
+<p><b>Question 10:</b> Mane jhelis n ?</p>
+<input type="text" id="answer10">
+<button onclick="checkAnswer(10,'answer10')">Submit</button>
+</div>
+
+<div id="question11" class="question hidden">
+<p><b>Question 11:</b> Muki n to nai jay n</p>
+<input type="text" id="answer11">
+<button onclick="checkAnswer(11,'answer11')">Submit</button>
+</div>
+
+<!-- END SCREEN -->
+<div id="endScreen" class="content hidden">
+<h2>🎉 Congrats! 🎉</h2>
+<p>Thankwwiiieeeree mari dikuuudiiiiiii 💗tabuudiiiiiii 🤍dhingliiiiii❣️betuuuuuuu 💞mari bhakharvadiiiiiiiii 💟mari bas have kai nai bas tu mari j cheee 🫠❤️🌍🪬🫂</p>
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', ()=>{
+document.getElementById('firstClickBtn').addEventListener('click',()=>{
+    document.getElementById('firstMeetPage').style.display='none';
+    document.getElementById('firstDateQuestion').style.display='block';
+});
+document.getElementById('firstDateBtn').addEventListener('click',()=>{
+    const val=document.getElementById('firstDateInput').value.trim();
+    if(val==='05 09 2024'){document.getElementById('firstDateQuestion').style.display='none'; startCode2();}
+    else alert("Oops! Wrong date 😏 Try again.");
+});
+document.getElementById('code2PandaBtn').addEventListener('click', startCode3);
+});
 
-let users=JSON.parse(localStorage.getItem("users"))||[]
-let products=JSON.parse(localStorage.getItem("products"))||[]
-let history=JSON.parse(localStorage.getItem("history"))||[]
-
-function saveData(){
-
-localStorage.setItem("products",JSON.stringify(products))
-localStorage.setItem("history",JSON.stringify(history))
-
+function startCode2(){
+setTimeout(()=>{
+    document.getElementById('code2Message').style.display='block';
+    setTimeout(()=>{document.getElementById('code2PandaBtn').style.display='block';},7000);
+},3000);
 }
 
-function signup(){
-
-let u=newUser.value
-let p=newPass.value
-
-users.push({u,p})
-
-localStorage.setItem("users",JSON.stringify(users))
-
-signupPage.style.display="none"
-dashboard.style.display="block"
-
-render()
-
+function startCode3(){
+document.getElementById('code2Message').style.display='none';
+document.getElementById('code2PandaBtn').style.display='none';
+document.getElementById('content1').style.display='block';
 }
 
-function login(){
-
-let u=username.value
-let p=password.value
-
-let valid=users.find(x=>x.u===u && x.p===p)
-
-if(valid){
-
-loginPage.style.display="none"
-dashboard.style.display="block"
-
-render()
-
-}else{
-
-loginMsg.innerText="Invalid login"
-
+function checkAnswer(num,inputId){
+const ans=document.getElementById(inputId).value.trim().toLowerCase();
+if(
+(num===1 && ans==='jealousy')||
+(num===2 && ans==='vandri')||
+(num===3 && ans==='gado')||
+(num===4 && ans==='mane malva mehsana avis n')||
+(num===5 && ans==='dhingli')||
+(num===6 && ans==='matha ma hath ferav vo')||
+(num===7 && ans==='par ayo')||
+(num===8 && ans==='eyes')||
+(num===9 && ans==='yes')||
+(num===10 && ans==='yes')||
+(num===11 && ans==='no')
+){
+document.getElementById('question'+num).style.display='none';
+const nextNum=num+1;
+const nextContent=document.getElementById('content'+nextNum);
+const nextQuestion=document.getElementById('question'+nextNum);
+if(nextContent) nextContent.style.display='block';
+else if(nextQuestion) nextQuestion.style.display='block';
+else document.getElementById('endScreen').style.display='block';
+}else alert("Oops! Try again 😏");
 }
-
-}
-
-function logout(){
-
-dashboard.style.display="none"
-loginPage.style.display="flex"
-
-}
-
-function showLogin(){
-
-signupPage.style.display="none"
-loginPage.style.display="flex"
-
-}
-
-function showSignup(){
-
-loginPage.style.display="none"
-signupPage.style.display="flex"
-
-}
-
-function addProduct(){
-
-let name=document.getElementById("name").value
-let qty=parseInt(document.getElementById("qty").value)
-let zone=document.getElementById("zone").value
-let shelf=document.getElementById("shelf").value
-
-let id=Date.now()
-
-products.push({id,name,qty,zone,shelf})
-
-history.push(new Date().toLocaleString()+" Added "+name)
-
-saveData()
-
-render()
-
-}
-
-function moveProduct(id){
-
-let p=products.find(x=>x.id===id)
-
-let newZone=prompt("New Zone")
-let newShelf=prompt("New Shelf")
-
-p.zone=newZone
-p.shelf=newShelf
-
-history.push("Moved "+p.name)
-
-saveData()
-
-render()
-
-}
-
-function deliverProduct(id){
-
-let p=products.find(x=>x.id===id)
-
-let q=prompt("Delivery qty")
-
-if(q>p.qty){
-alert("Not enough stock")
-return
-}
-
-p.qty=p.qty-q
-
-if(p.qty<5){
-alert("⚠ Low stock for "+p.name)
-}
-
-history.push("Delivered "+q+" "+p.name)
-
-saveData()
-
-render()
-
-}
-
-function editProduct(id){
-
-let p=products.find(x=>x.id===id)
-
-p.name=prompt("Edit name",p.name)
-p.qty=parseInt(prompt("Edit qty",p.qty))
-
-history.push("Edited "+p.name)
-
-saveData()
-
-render()
-
-}
-
-function deleteProduct(id){
-
-let p=products.find(x=>x.id===id)
-
-products=products.filter(x=>x.id!==id)
-
-history.push("Deleted "+p.name)
-
-saveData()
-
-render()
-
-}
-
-function render(){
-
-let table=document.getElementById("table")
-
-table.innerHTML=`<tr>
-<th>ID</th>
-<th>Name</th>
-<th>Qty</th>
-<th>Status</th>
-<th>Zone</th>
-<th>Shelf</th>
-<th>Move</th>
-<th>Deliver</th>
-<th>Edit</th>
-<th>Delete</th>
-</tr>`
-
-let low=0
-let out=0
-
-let lowList=document.getElementById("lowStock")
-lowList.innerHTML=""
-
-products.forEach(p=>{
-
-let status="In Stock"
-
-if(p.qty==0){
-status="Out of Stock"
-out++
-}
-else if(p.qty<5){
-status="Low Stock"
-low++
-lowList.innerHTML+=`<li>${p.name} (${p.qty})</li>`
-}
-
-table.innerHTML+=`
-
-<tr>
-<td>${p.id}</td>
-<td>${p.name}</td>
-<td>${p.qty}</td>
-<td>${status}</td>
-<td>${p.zone}</td>
-<td>${p.shelf}</td>
-<td><button onclick="moveProduct(${p.id})">Move</button></td>
-<td><button onclick="deliverProduct(${p.id})">Deliver</button></td>
-<td><button onclick="editProduct(${p.id})">Edit</button></td>
-<td><button onclick="deleteProduct(${p.id})">Delete</button></td>
-</tr>`
-
-})
-
-totalProducts.innerText=products.length
-lowCount.innerText=low
-outCount.innerText=out
-
-}
-
-function searchProduct(){
-
-let input=document.getElementById("search").value.toLowerCase()
-
-let rows=document.querySelectorAll("#table tr")
-
-rows.forEach((row,i)=>{
-
-if(i===0)return
-
-let name=row.children[1].innerText.toLowerCase()
-
-row.style.display=name.includes(input)?"":"none"
-
-})
-
-}
-
-function searchById(){
-
-let id=idSearch.value
-
-let p=products.find(x=>x.id==id)
-
-if(p){
-alert("Product: "+p.name+" Qty:"+p.qty)
-}else{
-alert("Not found")
-}
-
-}
-
-function showHistory(){
-
-let win=window.open("","History")
-
-let html="<h2>Inventory History</h2><ul>"
-
-history.forEach(h=>{
-html+="<li>"+h+"</li>"
-})
-
-html+="</ul>"
-
-win.document.write(html)
-
-}
-
-function downloadData(){
-
-let data=JSON.stringify(products,null,2)
-
-let blob=new Blob([data],{type:"application/json"})
-
-let a=document.createElement("a")
-
-a.href=URL.createObjectURL(blob)
-a.download="inventory.json"
-a.click()
-
-}
-
 </script>
-
 </body>
 </html>
