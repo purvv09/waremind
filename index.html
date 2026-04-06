@@ -1,1 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Earth to Smart Traffic Simulation</title>
+<style>
+body {margin:0; overflow:hidden; font-family:sans-serif; display:flex; height:100vh;}
+/* ------------------- PHASE 1: EARTH + CLOUDS ------------------- */
+#earthPhase {position:absolute;width:100%;height:100%;background:black;display:flex;justify-content:center;align-items:center;z-index:10;flex-direction:column;}
+#earth {width:300px; transition: transform 2s ease; z-index:2;}
+.cloud {position:absolute; width:350px; transition: transform 2s ease; top:50%; left:50%; transform:translate(-50%,-50%); z-index:3;}
+.moveLeft {transform:translate(-200%,-50%);}
+.moveRight {transform:translate(100%,-50%);}
 
+/* ------------------- PHASE 2: TRAFFIC SIMULATION ------------------- */
+#trafficSim { display:none; flex:1; width:100%; height:100%; }
+#trafficSimBody { display:flex; width:100%; height:100%; }
+#leftPanel { width:35%; background:#f0f0f0; padding:20px; box-sizing:border-box; overflow-y:auto; }
+#rightPanel { width:65%; position:relative; background:#87ceeb; overflow:hidden; }
+
+/* BUILDINGS */
+.building { position:absolute; background:#b5651d; border:2px solid #753c0f; border-radius:4px; }
+.building.tl { top:0; left:0; width:100px; height:100px; }
+.building.tr { top:0; right:0; width:100px; height:100px; }
+.building.bl { bottom:0; left:0; width:100px; height:100px; }
+.building.br { bottom:0; right:0; width:100px; height:100px; }
+/* ROADS */
+.road-horizontal, .road-vertical { position:absolute; background:#2a2a2a; }
+.road-horizontal { top:50%; width:100%; height:150px; transform:translateY(-50%); }
+.road-vertical { left:50%; width:150px; height:100%; transform:translateX(-50%); }
+/* FOOTPATH */
+.footpath { position:absolute; background:#e0e0e0; }
+.footpath.top { top:calc(50% - 150px/2 - 20px); width:100%; height:20px; }
+.footpath.bottom { top:calc(50% + 150px/2); width:100%; height:20px; }
+.footpath.left { left:calc(50% - 150px/2 - 20px); width:20px; height:100%; }
+.footpath.right { left:calc(50% + 150px/2); width:20px; height:100%; }
+/* ZEBRA CROSSINGS */
+.zebra-horizontal, .zebra-vertical { position:absolute; display:flex; }
+.zebra-horizontal div { width:25px; height:12px; margin-right:3px; }
+.zebra-vertical div { width:12px; height:25px; margin-bottom:3px; }
+.zebra-left, .zebra-right { flex-direction:column; }
+.zebra-top { top:calc(50% - 150px/2 - 12px); left:calc(50% - 70px); }
+.zebra-bottom { top:calc(50% + 150px/2); left:calc(50% - 70px); }
+.zebra-left { left:calc(50% - 150px/2 - 12px); top:calc(50% - 70px); }
+.zebra-right { left:calc(50% + 150px/2); top:calc(50% - 70px); }
+/* SIGNALS */
+.signal { width:25px; background:#333; border-radius:8px; display:flex; flex-direction:column; align-items:center; gap:4px; position:absolute; padding:5px; }
+.signal::after { content:''; position:absolute; width:4px; height:40px; background:#555; top:100%; left:50%; transform:translateX(-50%); border-radius:2px; }
+.light { width:12px; height:12px; border-radius:50%; background:#111; opacity:0.3; transition:opacity 0.3s; }
+.light.red.active { background:red; opacity:1; }
+.light.yellow.active { background:yellow; opacity:1; }
+.light.green.active { background:green; opacity:1; }
+/* SIGNAL POSITIONS */
+.north { top:calc(50% - 150px/2 - 60px); left:50%; transform:translateX(-50%); }
+.south { top:calc(50% + 150px/2 + 30px); left:50%; transform:translateX(-50%); }
+.east  { left:calc(50% + 150px/2 + 30px); top:50%; transform:translateY(-50%); }
+.west  { left:calc(50% - 150px/2 - 60px); top:50%; transform:translateY(-50%); }
+/* VEHICLES */
+.car { width:20px; height:12px; background:blue; position:absolute; border-radius:2px; transition:top 0.1s linear, left 0.1s linear; }
+.emergency { background:red; }
+</style>
+</head>
+<body>
+
+<!-- PHASE 1: EARTH + CLOUDS -->
+<div id="earthPhase">
+    <img id="earth" src="https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg">
+    <img id="cloudLeft" class="cloud" src="https://pngimg.com/uploads/cloud/cloud_PNG27.png">
+    <img id="cloudRight" class="cloud" src="https://pngimg.com/uploads/cloud/cloud_PNG27.png">
+</div>
+
+<!-- PHASE 2: TRAFFIC SIMULATION -->
+<div id="trafficSim">
+    <div id="trafficSimBody">
+        <div id="leftPanel">
+            <h2>Traffic Control Panel</h2>
+            <div id="roadInputs"></div>
+            <button onclick="spawnCars()">Spawn Vehicles</button>
+            <h3>Traffic Stats</h3>
+            <pre id="stats"></pre>
+        </div>
+        <div id="rightPanel">
+            <div class="building tl"></div>
+            <div class="building tr"></div>
+            <div class="building bl"></div>
+            <div class="building br"></div>
+            <div class="road-horizontal"></div>
+            <div class="road-vertical"></div>
+            <div class="footpath top"></div>
+            <div class="footpath bottom"></div>
+            <div class="footpath left"></div>
+            <div class="footpath right"></div>
+            <div class="zebra-horizontal zebra-top"><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div></div>
+            <div class="zebra-horizontal zebra-bottom"><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div></div>
+            <div class="zebra-vertical zebra-left"><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div></div>
+            <div class="zebra-vertical zebra-right"><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div></div>
+            <div class="signal north"><div class="light red active"></div><div class="light yellow"></div><div class="light green"></div></div>
+            <div class="signal south"><div class="light red active"></div><div class="light yellow"></div><div class="light green"></div></div>
+            <div class="signal east"><div class="light red active"></div><div class="light yellow"></div><div class="light green"></div></div>
+            <div class="signal west"><div class="light red active"></div><div class="light yellow"></div><div class="light green"></div></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ------------------- PHASE 1: EARTH + CLOUDS -------------------
+setTimeout(()=>{
+    document.getElementById("cloudLeft").classList.add("moveLeft");
+    document.getElementById("cloudRight").classList.add("moveRight");
+    document.getElementById("earth").style.transform = "translate(-30%, -70%) scale(4)";
+},1000);
+
+setTimeout(()=>{
+    document.getElementById("earthPhase").style.display='none';
+    document.getElementById("trafficSim").style.display='flex';
+    initTraffic();
+},4000);
+
+// ------------------- PHASE 2: TRAFFIC SIM -------------------
+function initTraffic(){
+const roads = ["north","south","east","west"];
+let vehiclesData = {north:[], south:[], east:[], west:[]};
+let signals = {north:'red',south:'red',east:'red',west:'red'};
+const statsEl = document.getElementById("stats");
+const roadInputsEl = document.getElementById("roadInputs");
+
+roads.forEach(r=>{
+    roadInputsEl.innerHTML += `${r.charAt(0).toUpperCase()+r.slice(1)} vehicles: <input type="number" id="${r}Input" value="3" min="0"> Emergency? <input type="checkbox" id="${r}Em"> <br>`;
+});
+
+// Spawn vehicles
+window.spawnCars = function(){
+    roads.forEach(r=>{
+        const num = parseInt(document.getElementById(r+"Input").value);
+        const emergency = document.getElementById(r+"Em").checked;
+        const arr = [];
+        for(let i=0;i<num;i++){
+            const car = document.createElement("div");
+            car.className = 'car' + (i==0 && emergency ? ' emergency':'');
+            document.getElementById("rightPanel").appendChild(car);
+            arr.push({el:car,emergency: i==0 && emergency,road:r,pos:0});
+        }
+        vehiclesData[r] = arr;
+    });
+    updateStats();
+}
+
+// ------------------- AUTO PRIORITY SIGNAL -------------------
+function updatePriority(){
+    let priorityRoad = '';
+    let maxVehicles = -1;
+    // Check emergency first
+    roads.forEach(r=>{
+        if(vehiclesData[r].some(v=>v.emergency)) priorityRoad = r;
+    });
+    // If no emergency, check max vehicles
+    if(priorityRoad==''){
+        roads.forEach(r=>{
+            if(vehiclesData[r].length > maxVehicles){
+                maxVehicles = vehiclesData[r].length;
+                priorityRoad = r;
+            }
+        });
+    }
+    // Set signals
+    roads.forEach(r=>signals[r]='red');
+    if(priorityRoad) signals[priorityRoad]='green';
+    updateSignals();
+}
+function updateSignals(){
+    roads.forEach(r=>{
+        const s = document.querySelector(`.${r} .light.red`);
+        const g = document.querySelector(`.${r} .light.green`);
+        s.classList.remove('active'); g.classList.remove('active');
+        if(signals[r]=='red') s.classList.add('active');
+        else if(signals[r]=='green') g.classList.add('active');
+    });
+}
+
+// Vehicle movement
+function moveVehicles(){
+    roads.forEach(r=>{
+        vehiclesData[r].forEach(v=>{
+            let speed = v.emergency ? 4 : 2;
+            if(signals[r]=='green' || v.emergency) v.pos += speed;
+            let el = v.el;
+            if(r=='north') {el.style.top = 0+v.pos+'px'; el.style.left='48%';}
+            if(r=='south') {el.style.top = 500-v.pos+'px'; el.style.left='52%';}
+            if(r=='east') {el.style.left = 0+v.pos+'px'; el.style.top='48%';}
+            if(r=='west') {el.style.left = 500-v.pos+'px'; el.style.top='52%';}
+        });
+    });
+    updatePriority();
+    requestAnimationFrame(moveVehicles);
+}
+moveVehicles();
+
+// Stats
+function updateStats(){
+    let stats = "";
+    roads.forEach(r=>{
+        const arr = vehiclesData[r];
+        stats += `${r.charAt(0).toUpperCase()+r.slice(1)}: ${arr.length} vehicles ${arr.some(v=>v.emergency)?'[Emergency]':''}\n`;
+    });
+    statsEl.textContent = stats;
+}
+}
+</script>
+</body>
+</html>
