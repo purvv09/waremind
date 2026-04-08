@@ -1,210 +1,221 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Earth to Smart Traffic Simulation</title>
+<title>Weighted Graph Optimizer - Full Edition</title>
 <style>
-body {margin:0; overflow:hidden; font-family:sans-serif; display:flex; height:100vh;}
-/* ------------------- PHASE 1: EARTH + CLOUDS ------------------- */
-#earthPhase {position:absolute;width:100%;height:100%;background:black;display:flex;justify-content:center;align-items:center;z-index:10;flex-direction:column;}
-#earth {width:300px; transition: transform 2s ease; z-index:2;}
-.cloud {position:absolute; width:350px; transition: transform 2s ease; top:50%; left:50%; transform:translate(-50%,-50%); z-index:3;}
-.moveLeft {transform:translate(-200%,-50%);}
-.moveRight {transform:translate(100%,-50%);}
+  :root { 
+    --bg: #050505; 
+    --glass: rgba(255, 255, 255, 0.05);
+    --gold: #ffcc00; 
+    --cyan: #00d4ff; 
+    --red: #ff3e3e; 
+    --text: #ffffff; 
+  }
+  
+  body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+  
+  /* Background Animation */
+  #bg-glow { position: fixed; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% 50%, #111, #000); z-index: -2; }
 
-/* ------------------- PHASE 2: TRAFFIC SIMULATION ------------------- */
-#trafficSim { display:none; flex:1; width:100%; height:100%; }
-#trafficSimBody { display:flex; width:100%; height:100%; }
-#leftPanel { width:35%; background:#f0f0f0; padding:20px; box-sizing:border-box; overflow-y:auto; }
-#rightPanel { width:65%; position:relative; background:#87ceeb; overflow:hidden; }
+  /* Page Control */
+  .screen { width: 100vw; height: 100vh; display: none; padding: 30px; box-sizing: border-box; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .active { display: flex; animation: fadeIn 0.6s ease-in-out; }
 
-/* BUILDINGS */
-.building { position:absolute; background:#b5651d; border:2px solid #753c0f; border-radius:4px; }
-.building.tl { top:0; left:0; width:100px; height:100px; }
-.building.tr { top:0; right:0; width:100px; height:100px; }
-.building.bl { bottom:0; left:0; width:100px; height:100px; }
-.building.br { bottom:0; right:0; width:100px; height:100px; }
-/* ROADS */
-.road-horizontal, .road-vertical { position:absolute; background:#2a2a2a; }
-.road-horizontal { top:50%; width:100%; height:150px; transform:translateY(-50%); }
-.road-vertical { left:50%; width:150px; height:100%; transform:translateX(-50%); }
-/* FOOTPATH */
-.footpath { position:absolute; background:#e0e0e0; }
-.footpath.top { top:calc(50% - 150px/2 - 20px); width:100%; height:20px; }
-.footpath.bottom { top:calc(50% + 150px/2); width:100%; height:20px; }
-.footpath.left { left:calc(50% - 150px/2 - 20px); width:20px; height:100%; }
-.footpath.right { left:calc(50% + 150px/2); width:20px; height:100%; }
-/* ZEBRA CROSSINGS */
-.zebra-horizontal, .zebra-vertical { position:absolute; display:flex; }
-.zebra-horizontal div { width:25px; height:12px; margin-right:3px; }
-.zebra-vertical div { width:12px; height:25px; margin-bottom:3px; }
-.zebra-left, .zebra-right { flex-direction:column; }
-.zebra-top { top:calc(50% - 150px/2 - 12px); left:calc(50% - 70px); }
-.zebra-bottom { top:calc(50% + 150px/2); left:calc(50% - 70px); }
-.zebra-left { left:calc(50% - 150px/2 - 12px); top:calc(50% - 70px); }
-.zebra-right { left:calc(50% + 150px/2); top:calc(50% - 70px); }
-/* SIGNALS */
-.signal { width:25px; background:#333; border-radius:8px; display:flex; flex-direction:column; align-items:center; gap:4px; position:absolute; padding:5px; }
-.signal::after { content:''; position:absolute; width:4px; height:40px; background:#555; top:100%; left:50%; transform:translateX(-50%); border-radius:2px; }
-.light { width:12px; height:12px; border-radius:50%; background:#111; opacity:0.3; transition:opacity 0.3s; }
-.light.red.active { background:red; opacity:1; }
-.light.yellow.active { background:yellow; opacity:1; }
-.light.green.active { background:green; opacity:1; }
-/* SIGNAL POSITIONS */
-.north { top:calc(50% - 150px/2 - 60px); left:50%; transform:translateX(-50%); }
-.south { top:calc(50% + 150px/2 + 30px); left:50%; transform:translateX(-50%); }
-.east  { left:calc(50% + 150px/2 + 30px); top:50%; transform:translateY(-50%); }
-.west  { left:calc(50% - 150px/2 - 60px); top:50%; transform:translateY(-50%); }
-/* VEHICLES */
-.car { width:20px; height:12px; background:blue; position:absolute; border-radius:2px; transition:top 0.1s linear, left 0.1s linear; }
-.emergency { background:red; }
+  @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+  /* Creative Elements */
+  button { 
+    background: linear-gradient(45deg, var(--gold), #ffaa00); border: none; padding: 14px 35px; 
+    color: #000; font-weight: 800; border-radius: 50px; cursor: pointer; text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4); transition: 0.3s; margin-top: 15px;
+  }
+  button:hover { transform: scale(1.05); box-shadow: 0 6px 25px rgba(255, 204, 0, 0.6); }
+
+  .case-box { max-width: 850px; background: var(--glass); padding: 35px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); text-align: left; }
+  
+  .card-row { display: flex; gap: 15px; margin-top: 25px; flex-wrap: wrap; justify-content: center; }
+  .fancy-card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; width: 180px; transition: 0.3s; }
+  .fancy-card:hover { border-color: var(--cyan); transform: translateY(-5px); }
+
+  /* SIMULATOR LAYOUT (NO-CUT VERSION) */
+  .sim-layout { display: flex; gap: 20px; width: 100%; height: 85vh; max-width: 1400px; align-items: stretch; }
+  .canvas-box { flex: 2.8; background: #000; border-radius: 25px; border: 2px solid #222; position: relative; overflow: hidden; display: flex; box-shadow: inset 0 0 30px #111; }
+  #main-canvas { width: 100%; height: 100%; }
+  .control-panel { flex: 1; background: var(--glass); border-radius: 25px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(255,255,255,0.1); }
+
+  select { width: 100%; padding: 12px; border-radius: 10px; background: #111; color: var(--gold); border: 1px solid #333; margin: 8px 0 15px 0; }
+  .status-tag { background: rgba(0,0,0,0.6); padding: 15px; border-radius: 12px; border-left: 4px solid var(--cyan); font-size: 0.9rem; text-align: left; }
 </style>
 </head>
 <body>
 
-<!-- PHASE 1: EARTH + CLOUDS -->
-<div id="earthPhase">
-    <img id="earth" src="https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg">
-    <img id="cloudLeft" class="cloud" src="https://pngimg.com/uploads/cloud/cloud_PNG27.png">
-    <img id="cloudRight" class="cloud" src="https://pngimg.com/uploads/cloud/cloud_PNG27.png">
-</div>
+  <div id="bg-glow"></div>
 
-<!-- PHASE 2: TRAFFIC SIMULATION -->
-<div id="trafficSim">
-    <div id="trafficSimBody">
-        <div id="leftPanel">
-            <h2>Traffic Control Panel</h2>
-            <div id="roadInputs"></div>
-            <button onclick="spawnCars()">Spawn Vehicles</button>
-            <h3>Traffic Stats</h3>
-            <pre id="stats"></pre>
-        </div>
-        <div id="rightPanel">
-            <div class="building tl"></div>
-            <div class="building tr"></div>
-            <div class="building bl"></div>
-            <div class="building br"></div>
-            <div class="road-horizontal"></div>
-            <div class="road-vertical"></div>
-            <div class="footpath top"></div>
-            <div class="footpath bottom"></div>
-            <div class="footpath left"></div>
-            <div class="footpath right"></div>
-            <div class="zebra-horizontal zebra-top"><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div></div>
-            <div class="zebra-horizontal zebra-bottom"><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div></div>
-            <div class="zebra-vertical zebra-left"><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div></div>
-            <div class="zebra-vertical zebra-right"><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div><div style="background:white"></div><div style="background:black"></div></div>
-            <div class="signal north"><div class="light red active"></div><div class="light yellow"></div><div class="light green"></div></div>
-            <div class="signal south"><div class="light red active"></div><div class="light yellow"></div><div class="light green"></div></div>
-            <div class="signal east"><div class="light red active"></div><div class="light yellow"></div><div class="light green"></div></div>
-            <div class="signal west"><div class="light red active"></div><div class="light yellow"></div><div class="light green"></div></div>
-        </div>
+  <div id="p1" class="screen active">
+    <div style="font-size: 70px;">⚡</div>
+    <h1 style="font-size: 3.5rem; letter-spacing: 8px; margin: 10px 0; background: linear-gradient(to right, #ffcc00, #00d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">WEIGHTED OPTIMIZER</h1>
+    <p style="color: #888; letter-spacing: 2px;">Visualizing Network Vulnerabilities with DSA</p>
+    <button onclick="goToPage('p2')">Start Briefing ➔</button>
+  </div>
+
+  <div id="p2" class="screen">
+    <div class="case-box">
+      <h2 style="color: var(--gold); margin-top:0;">🛡️ Mission: The Secure Data Flow</h2>
+      <p>Think of a hacker 😈 trying to enter a high-security Bank. Most people think they take the shortest route. <b>But they don't.</b></p>
+      <p>They look for the <b>"Path of Least Resistance"</b>—the route where the security level (Weights) is the lowest across all nodes.</p>
+      <p>This project uses <b>Dijkstra's Algorithm</b> to find that hidden weak path so we can fix it before it's too late!</p>
+      <center><button onclick="goToPage('p3')">Next: System Logic ⚙️</button></center>
     </div>
-</div>
+  </div>
+
+  <div id="p3" class="screen">
+    <h1 style="color: var(--cyan);">How it Works ✨</h1>
+    <div class="card-row">
+      <div class="fancy-card"><h2 style="margin:0;">⭕</h2><p><b>Nodes</b><br>Computers or Data Centers.</p></div>
+      <div class="fancy-card"><h2 style="margin:0;">📏</h2><p><b>Weights</b><br>Security Difficulty Level.</p></div>
+      <div class="fancy-card"><h2 style="margin:0;">🧠</h2><p><b>Dijkstra</b><br>The Brain behind the math.</p></div>
+      <div class="fancy-card"><h2 style="margin:0;">🎯</h2><p><b>Audit</b><br>Identifying the Weakest Link.</p></div>
+    </div>
+    <button onclick="goToPage('p4')">Launch Simulator 🎮</button>
+  </div>
+
+  <div id="p4" class="screen">
+    <div class="sim-layout">
+      <div class="canvas-box" id="c-box">
+        <canvas id="main-canvas"></canvas>
+      </div>
+      <div class="control-panel">
+        <div>
+          <h2 style="color: var(--gold); margin:0;">Control Unit</h2>
+          <p style="font-size: 0.8rem; color: #888;">Select nodes to test network strength.</p>
+          <label style="font-size: 0.8rem;">START NODE:</label>
+          <select id="src" onchange="drawGraph()"></select>
+          <label style="font-size: 0.8rem;">TARGET ASSET:</label>
+          <select id="dst" onchange="drawGraph()"></select>
+          <button onclick="executeAttack()" style="width: 100%;">START BREACH 😈</button>
+        </div>
+        <div class="status-tag" id="status">System Ready. <br><small style="color: #666;">Choose nodes and run hack.</small></div>
+        <button onclick="goToPage('p5')" style="background: transparent; color: #666; border: 1px solid #444;">View Analysis 🏁</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="p5" class="screen">
+    <div style="font-size: 80px;">🏆</div>
+    <h1 style="color: var(--gold); margin:10px 0;">Final Audit Complete</h1>
+    <p style="max-width: 650px; color: #aaa; line-height: 1.6;">Our simulation proved that the "Shortest Path" isn't always the "Easiest Path." By calculating total weights, we can predict exactly where a hacker will strike.</p>
+    <div style="display: flex; gap: 20px;">
+        <button onclick="goToPage('p4')" style="background: #222; color: white;">Test Again</button>
+        <button onclick="location.reload()">System Reset</button>
+    </div>
+  </div>
 
 <script>
-// ------------------- PHASE 1: EARTH + CLOUDS -------------------
-setTimeout(()=>{
-    document.getElementById("cloudLeft").classList.add("moveLeft");
-    document.getElementById("cloudRight").classList.add("moveRight");
-    document.getElementById("earth").style.transform = "translate(-30%, -70%) scale(4)";
-},1000);
+  function goToPage(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(id === 'p4') setTimeout(resizeCanvas, 50);
+  }
 
-setTimeout(()=>{
-    document.getElementById("earthPhase").style.display='none';
-    document.getElementById("trafficSim").style.display='flex';
-    initTraffic();
-},4000);
+  const canvas = document.getElementById('main-canvas'), ctx = canvas.getContext('2d');
 
-// ------------------- PHASE 2: TRAFFIC SIM -------------------
-function initTraffic(){
-const roads = ["north","south","east","west"];
-let vehiclesData = {north:[], south:[], east:[], west:[]};
-let signals = {north:'red',south:'red',east:'red',west:'red'};
-const statsEl = document.getElementById("stats");
-const roadInputsEl = document.getElementById("roadInputs");
+  // Relative positions (0 to 1) so it never cuts
+  const nodes = { 
+    A:{x:0.1, y:0.5}, B:{x:0.25, y:0.25}, C:{x:0.25, y:0.75}, 
+    D:{x:0.45, y:0.25}, E:{x:0.45, y:0.75}, F:{x:0.65, y:0.25}, 
+    G:{x:0.65, y:0.75}, H:{x:0.8, y:0.5}, I:{x:0.92, y:0.25}, J:{x:0.92, y:0.75} 
+  };
 
-roads.forEach(r=>{
-    roadInputsEl.innerHTML += `${r.charAt(0).toUpperCase()+r.slice(1)} vehicles: <input type="number" id="${r}Input" value="3" min="0"> Emergency? <input type="checkbox" id="${r}Em"> <br>`;
-});
+  const graph = {
+    A: [{to:'B', w:5}, {to:'C', w:2}], B: [{to:'D', w:4}], C: [{to:'E', w:1}],
+    D: [{to:'F', w:8}, {to:'G', w:3}], E: [{to:'G', w:2}], F: [{to:'H', w:2}],
+    G: [{to:'H', w:1}], H: [{to:'I', w:10}, {to:'J', w:4}], I: [], J: []
+  };
 
-// Spawn vehicles
-window.spawnCars = function(){
-    roads.forEach(r=>{
-        const num = parseInt(document.getElementById(r+"Input").value);
-        const emergency = document.getElementById(r+"Em").checked;
-        const arr = [];
-        for(let i=0;i<num;i++){
-            const car = document.createElement("div");
-            car.className = 'car' + (i==0 && emergency ? ' emergency':'');
-            document.getElementById("rightPanel").appendChild(car);
-            arr.push({el:car,emergency: i==0 && emergency,road:r,pos:0});
-        }
-        vehiclesData[r] = arr;
+  function fillDropdowns() {
+    const src = document.getElementById('src'), dst = document.getElementById('dst');
+    Object.keys(nodes).sort().forEach(n => {
+      src.add(new Option("Node " + n, n));
+      dst.add(new Option("Node " + n, n));
     });
-    updateStats();
-}
+    dst.value = "J";
+  }
 
-// ------------------- AUTO PRIORITY SIGNAL -------------------
-function updatePriority(){
-    let priorityRoad = '';
-    let maxVehicles = -1;
-    // Check emergency first
-    roads.forEach(r=>{
-        if(vehiclesData[r].some(v=>v.emergency)) priorityRoad = r;
-    });
-    // If no emergency, check max vehicles
-    if(priorityRoad==''){
-        roads.forEach(r=>{
-            if(vehiclesData[r].length > maxVehicles){
-                maxVehicles = vehiclesData[r].length;
-                priorityRoad = r;
-            }
-        });
+  function resizeCanvas() {
+    const box = document.getElementById('c-box');
+    canvas.width = box.clientWidth;
+    canvas.height = box.clientHeight;
+    drawGraph();
+  }
+
+  function getPos(n) { return { x: nodes[n].x * canvas.width, y: nodes[n].y * canvas.height }; }
+
+  function drawGraph(activePath = []) {
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    const s = document.getElementById('src').value, t = document.getElementById('dst').value;
+
+    for(let u in graph) {
+      const p1 = getPos(u);
+      graph[u].forEach(edge => {
+        const p2 = getPos(edge.to);
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+        ctx.strokeStyle = (activePath.includes(u) && activePath.includes(edge.to)) ? "#ffcc00" : "#222";
+        ctx.lineWidth = (activePath.includes(u) && activePath.includes(edge.to)) ? 4 : 2;
+        ctx.stroke();
+        ctx.fillStyle = "#555"; ctx.font = "bold 12px Arial";
+        ctx.fillText(edge.w, (p1.x + p2.x)/2, (p1.y + p2.y)/2 - 5);
+      });
     }
-    // Set signals
-    roads.forEach(r=>signals[r]='red');
-    if(priorityRoad) signals[priorityRoad]='green';
-    updateSignals();
-}
-function updateSignals(){
-    roads.forEach(r=>{
-        const s = document.querySelector(`.${r} .light.red`);
-        const g = document.querySelector(`.${r} .light.green`);
-        s.classList.remove('active'); g.classList.remove('active');
-        if(signals[r]=='red') s.classList.add('active');
-        else if(signals[r]=='green') g.classList.add('active');
-    });
-}
 
-// Vehicle movement
-function moveVehicles(){
-    roads.forEach(r=>{
-        vehiclesData[r].forEach(v=>{
-            let speed = v.emergency ? 4 : 2;
-            if(signals[r]=='green' || v.emergency) v.pos += speed;
-            let el = v.el;
-            if(r=='north') {el.style.top = 0+v.pos+'px'; el.style.left='48%';}
-            if(r=='south') {el.style.top = 500-v.pos+'px'; el.style.left='52%';}
-            if(r=='east') {el.style.left = 0+v.pos+'px'; el.style.top='48%';}
-            if(r=='west') {el.style.left = 500-v.pos+'px'; el.style.top='52%';}
+    for(let n in nodes) {
+      const p = getPos(n);
+      ctx.beginPath(); ctx.arc(p.x, p.y, 18, 0, Math.PI*2);
+      ctx.fillStyle = (n === s) ? "#00d4ff" : (n === t) ? "#ff3e3e" : "#111";
+      ctx.fill(); ctx.strokeStyle = "#444"; ctx.stroke();
+      ctx.fillStyle = "#fff"; ctx.font = "bold 12px Arial"; ctx.textAlign="center";
+      ctx.fillText(n, p.x, p.y + 4);
+    }
+  }
+
+  async function executeAttack() {
+    const s = document.getElementById('src').value, t = document.getElementById('dst').value;
+    if(s === t) return;
+
+    let distances = {}, prev = {}, pq = [[0, s]];
+    for(let n in nodes) distances[n] = Infinity;
+    distances[s] = 0;
+
+    while(pq.length) {
+      pq.sort((a,b) => a[0]-b[0]);
+      let [d, u] = pq.shift();
+      if(u === t) break;
+      if(graph[u]) {
+        graph[u].forEach(edge => {
+          let alt = distances[u] + edge.w;
+          if(alt < distances[edge.to]) { distances[edge.to] = alt; prev[edge.to] = u; pq.push([alt, edge.to]); }
         });
-    });
-    updatePriority();
-    requestAnimationFrame(moveVehicles);
-}
-moveVehicles();
+      }
+    }
 
-// Stats
-function updateStats(){
-    let stats = "";
-    roads.forEach(r=>{
-        const arr = vehiclesData[r];
-        stats += `${r.charAt(0).toUpperCase()+r.slice(1)}: ${arr.length} vehicles ${arr.some(v=>v.emergency)?'[Emergency]':''}\n`;
-    });
-    statsEl.textContent = stats;
-}
-}
+    let path = [], curr = t;
+    while(curr) { path.unshift(curr); curr = prev[curr]; }
+    if(path[0] !== s) { document.getElementById('status').innerHTML = "No Path Exists!"; return; }
+
+    for(let i=0; i<path.length-1; i++) {
+      let p1 = getPos(path[i]), p2 = getPos(path[i+1]);
+      for(let step=0; step<=1; step+=0.1) {
+        drawGraph(path.slice(0, i+1));
+        ctx.font = "28px Arial"; 
+        ctx.fillText("😈", p1.x + (p2.x-p1.x)*step, (p1.y + (p2.y-p1.y)*step) + 10); 
+        await new Promise(r => setTimeout(r, 30));
+      }
+    }
+    drawGraph(path);
+    document.getElementById('status').innerHTML = `HACK SUCCESS!<br>Total Risk Score: <span style="color:white">${distances[t]}</span>`;
+  }
+
+  window.onload = () => { fillDropdowns(); window.addEventListener('resize', resizeCanvas); };
 </script>
 </body>
 </html>
