@@ -2,220 +2,211 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Weighted Graph Optimizer - Full Edition</title>
+<title>CloudSec: Risk-Sum Auditor Pro 🛡️</title>
 <style>
-  :root { 
-    --bg: #050505; 
-    --glass: rgba(255, 255, 255, 0.05);
-    --gold: #ffcc00; 
-    --cyan: #00d4ff; 
-    --red: #ff3e3e; 
-    --text: #ffffff; 
-  }
-  
-  body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
-  
-  /* Background Animation */
-  #bg-glow { position: fixed; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% 50%, #111, #000); z-index: -2; }
+  :root { 
+    --bg: #030305; --panel: rgba(15, 15, 20, 0.95);
+    --gold: #ffcc00; --cyan: #00d4ff; --red: #ff3131;
+    --low: #39ff14; --med: #ff9d00; --high: #ff3131; --crit: #b100ff;
+  }
+  body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; overflow: hidden; }
+  
+  .screen { width: 100vw; height: 100vh; display: none; padding: 25px; box-sizing: border-box; flex-direction: column; align-items: center; justify-content: center; }
+  .active { display: flex; animation: fadeIn 0.4s ease; }
 
-  /* Page Control */
-  .screen { width: 100vw; height: 100vh; display: none; padding: 30px; box-sizing: border-box; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-  .active { display: flex; animation: fadeIn 0.6s ease-in-out; }
+  .container { display: flex; gap: 20px; width: 100%; height: 90vh; max-width: 1600px; }
+  .canvas-box { flex: 3; background: #000; border-radius: 15px; border: 1px solid #1a1a1a; position: relative; box-shadow: inset 0 0 50px #000; }
+  #main-canvas { width: 100%; height: 100%; border-radius: 15px; }
 
-  @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+  .sidebar { flex: 1; background: var(--panel); border-radius: 15px; padding: 25px; border: 1px solid #222; display: flex; flex-direction: column; backdrop-filter: blur(10px); }
+  
+  h2 { color: var(--gold); font-size: 1.1rem; margin: 0 0 20px 0; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; }
+  
+  label { font-size: 0.7rem; color: #888; text-transform: uppercase; margin-top: 10px; }
+  select, button { width: 100%; padding: 14px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; font-weight: bold; font-family: inherit; }
+  select { background: #080808; color: var(--gold); cursor: pointer; }
+  
+  button { background: var(--gold); color: #000; cursor: pointer; border: none; text-transform: uppercase; transition: 0.3s; }
+  button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 204, 0, 0.3); }
 
-  /* Creative Elements */
-  button { 
-    background: linear-gradient(45deg, var(--gold), #ffaa00); border: none; padding: 14px 35px; 
-    color: #000; font-weight: 800; border-radius: 50px; cursor: pointer; text-transform: uppercase;
-    box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4); transition: 0.3s; margin-top: 15px;
-  }
-  button:hover { transform: scale(1.05); box-shadow: 0 6px 25px rgba(255, 204, 0, 0.6); }
-
-  .case-box { max-width: 850px; background: var(--glass); padding: 35px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); text-align: left; }
-  
-  .card-row { display: flex; gap: 15px; margin-top: 25px; flex-wrap: wrap; justify-content: center; }
-  .fancy-card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; width: 180px; transition: 0.3s; }
-  .fancy-card:hover { border-color: var(--cyan); transform: translateY(-5px); }
-
-  /* SIMULATOR LAYOUT (NO-CUT VERSION) */
-  .sim-layout { display: flex; gap: 20px; width: 100%; height: 85vh; max-width: 1400px; align-items: stretch; }
-  .canvas-box { flex: 2.8; background: #000; border-radius: 25px; border: 2px solid #222; position: relative; overflow: hidden; display: flex; box-shadow: inset 0 0 30px #111; }
-  #main-canvas { width: 100%; height: 100%; }
-  .control-panel { flex: 1; background: var(--glass); border-radius: 25px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(255,255,255,0.1); }
-
-  select { width: 100%; padding: 12px; border-radius: 10px; background: #111; color: var(--gold); border: 1px solid #333; margin: 8px 0 15px 0; }
-  .status-tag { background: rgba(0,0,0,0.6); padding: 15px; border-radius: 12px; border-left: 4px solid var(--cyan); font-size: 0.9rem; text-align: left; }
+  .calc-panel { margin-top: auto; background: #000; padding: 15px; border-radius: 8px; border-left: 4px solid var(--cyan); }
+  .math-font { font-family: 'Courier New', monospace; font-size: 1.1rem; color: var(--gold); font-weight: bold; }
 </style>
 </head>
 <body>
 
-  <div id="bg-glow"></div>
+<div id="p1" class="screen active">
+  <h1 style="font-size: 3.5rem; letter-spacing: 8px; color: var(--gold); margin:0;">🚀 AUDITOR V3.1</h1>
+  <p style="color: #666; letter-spacing: 3px;">🛰️ Quantitative Risk-Score Pathfinding Simulator</p>
+  <button onclick="goToPage('p4')" style="width: 280px; margin-top: 30px;">Initialize Console 🖥️</button>
+</div>
 
-  <div id="p1" class="screen active">
-    <div style="font-size: 70px;">⚡</div>
-    <h1 style="font-size: 3.5rem; letter-spacing: 8px; margin: 10px 0; background: linear-gradient(to right, #ffcc00, #00d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">WEIGHTED OPTIMIZER</h1>
-    <p style="color: #888; letter-spacing: 2px;">Visualizing Network Vulnerabilities with DSA</p>
-    <button onclick="goToPage('p2')">Start Briefing ➔</button>
-  </div>
+<div id="p4" class="screen">
+  <div class="container">
+    <div class="canvas-box" id="c-wrap"><canvas id="main-canvas"></canvas></div>
+    <div class="sidebar">
+      <h2>🛡️ SOC Command Center</h2>
+      <label>📍 Entry Point</label>
+      <select id="src" onchange="draw()"></select>
+      <label>🎯 Target Asset</label>
+      <select id="dst" onchange="draw()"></select>
+      
+      <button onclick="runAudit()">Compute Breach Path 💀</button>
 
-  <div id="p2" class="screen">
-    <div class="case-box">
-      <h2 style="color: var(--gold); margin-top:0;">🛡️ Mission: The Secure Data Flow</h2>
-      <p>Think of a hacker 😈 trying to enter a high-security Bank. Most people think they take the shortest route. <b>But they don't.</b></p>
-      <p>They look for the <b>"Path of Least Resistance"</b>—the route where the security level (Weights) is the lowest across all nodes.</p>
-      <p>This project uses <b>Dijkstra's Algorithm</b> to find that hidden weak path so we can fix it before it's too late!</p>
-      <center><button onclick="goToPage('p3')">Next: System Logic ⚙️</button></center>
-    </div>
-  </div>
+      <div class="calc-panel" id="log">
+        <div style="font-size: 10px; color: #555; margin-bottom: 5px;">🧮 LIVE CALCULATION:</div>
+        <div id="math-display" class="math-font">0 + 0 = 0</div>
+        <div id="path-display" style="font-size: 11px; color: #888; margin-top: 10px;">Waiting for scan... 📡</div>
+      </div>
+      
+      <button onclick="goToPage('p5')" style="background: transparent; border: 1px solid #333; color: #444; font-size: 10px; margin-top: 15px;">📜 View Forensic Report</button>
+    </div>
+  </div>
+</div>
 
-  <div id="p3" class="screen">
-    <h1 style="color: var(--cyan);">How it Works ✨</h1>
-    <div class="card-row">
-      <div class="fancy-card"><h2 style="margin:0;">⭕</h2><p><b>Nodes</b><br>Computers or Data Centers.</p></div>
-      <div class="fancy-card"><h2 style="margin:0;">📏</h2><p><b>Weights</b><br>Security Difficulty Level.</p></div>
-      <div class="fancy-card"><h2 style="margin:0;">🧠</h2><p><b>Dijkstra</b><br>The Brain behind the math.</p></div>
-      <div class="fancy-card"><h2 style="margin:0;">🎯</h2><p><b>Audit</b><br>Identifying the Weakest Link.</p></div>
-    </div>
-    <button onclick="goToPage('p4')">Launch Simulator 🎮</button>
-  </div>
-
-  <div id="p4" class="screen">
-    <div class="sim-layout">
-      <div class="canvas-box" id="c-box">
-        <canvas id="main-canvas"></canvas>
-      </div>
-      <div class="control-panel">
-        <div>
-          <h2 style="color: var(--gold); margin:0;">Control Unit</h2>
-          <p style="font-size: 0.8rem; color: #888;">Select nodes to test network strength.</p>
-          <label style="font-size: 0.8rem;">START NODE:</label>
-          <select id="src" onchange="drawGraph()"></select>
-          <label style="font-size: 0.8rem;">TARGET ASSET:</label>
-          <select id="dst" onchange="drawGraph()"></select>
-          <button onclick="executeAttack()" style="width: 100%;">START BREACH 😈</button>
-        </div>
-        <div class="status-tag" id="status">System Ready. <br><small style="color: #666;">Choose nodes and run hack.</small></div>
-        <button onclick="goToPage('p5')" style="background: transparent; color: #666; border: 1px solid #444;">View Analysis 🏁</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="p5" class="screen">
-    <div style="font-size: 80px;">🏆</div>
-    <h1 style="color: var(--gold); margin:10px 0;">Final Audit Complete</h1>
-    <p style="max-width: 650px; color: #aaa; line-height: 1.6;">Our simulation proved that the "Shortest Path" isn't always the "Easiest Path." By calculating total weights, we can predict exactly where a hacker will strike.</p>
-    <div style="display: flex; gap: 20px;">
-        <button onclick="goToPage('p4')" style="background: #222; color: white;">Test Again</button>
-        <button onclick="location.reload()">System Reset</button>
-    </div>
-  </div>
+<div id="p5" class="screen">
+  <div style="background: var(--panel); padding: 50px; border-radius: 20px; border: 1px solid #333; width: 80%; text-align: left;">
+    <h1 style="color: var(--gold); margin:0;">📊 Post-Exploit Analysis</h1>
+    <hr style="border:0; border-top:1px solid #222; margin: 20px 0;">
+    <p style="color:var(--cyan)">📑 VULNERABILITY VECTOR:</p>
+    <h2 id="final-path" style="font-family: monospace;">--</h2>
+    <div style="display: flex; gap: 50px; margin-top: 30px;">
+        <div><p style="color:#666;margin:0;">📉 Risk Accumulation:</p><h1 id="final-total" style="color:var(--gold); font-size: 3.5rem; margin:0;">0</h1></div>
+        <div><p style="color:#666;margin:0;">⚠️ Threat Level:</p><h2 id="final-cat" style="color:var(--red); margin:0; font-size: 2rem;">STABLE</h2></div>
+    </div>
+    <button onclick="goToPage('p4')" style="margin-top: 40px; width: 220px;">🔄 New Audit Session</button>
+  </div>
+</div>
 
 <script>
-  function goToPage(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    if(id === 'p4') setTimeout(resizeCanvas, 50);
-  }
+  function goToPage(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(id === 'p4') setTimeout(resize, 50);
+  }
 
-  const canvas = document.getElementById('main-canvas'), ctx = canvas.getContext('2d');
+  const canvas = document.getElementById('main-canvas'), ctx = canvas.getContext('2d');
 
-  // Relative positions (0 to 1) so it never cuts
-  const nodes = { 
-    A:{x:0.1, y:0.5}, B:{x:0.25, y:0.25}, C:{x:0.25, y:0.75}, 
-    D:{x:0.45, y:0.25}, E:{x:0.45, y:0.75}, F:{x:0.65, y:0.25}, 
-    G:{x:0.65, y:0.75}, H:{x:0.8, y:0.5}, I:{x:0.92, y:0.25}, J:{x:0.92, y:0.75} 
-  };
+  const nodes = { 
+    "WAF": {r: 2, icon: "🛡️", x:0.08, y:0.5},
+    "LB": {r: 3, icon: "🔀", x:0.25, y:0.25},
+    "DMZ": {r: 5, icon: "🚧", x:0.25, y:0.75},
+    "API_GTW": {r: 7, icon: "🚪", x:0.45, y:0.75},
+    "APP_SVR": {r: 8, icon: "🧠", x:0.65, y:0.5},
+    "SIEM": {r: 2, icon: "👁️", x:0.75, y:0.15},
+    "HSM": {r: 10, icon: "🔑", x:0.8, y:0.85},
+    "CORE": {r: 10, icon: "🏦", x:0.85, y:0.4},
+    "DB": {r: 10, icon: "🔒", x:0.94, y:0.6}
+  };
 
-  const graph = {
-    A: [{to:'B', w:5}, {to:'C', w:2}], B: [{to:'D', w:4}], C: [{to:'E', w:1}],
-    D: [{to:'F', w:8}, {to:'G', w:3}], E: [{to:'G', w:2}], F: [{to:'H', w:2}],
-    G: [{to:'H', w:1}], H: [{to:'I', w:10}, {to:'J', w:4}], I: [], J: []
-  };
+  const graph = {
+    "WAF": ["LB", "DMZ"],
+    "LB": ["API_GTW"],
+    "DMZ": ["API_GTW"],
+    "API_GTW": ["APP_SVR", "HSM"],
+    "APP_SVR": ["CORE", "SIEM"],
+    "HSM": ["CORE"], "CORE": ["DB"], "SIEM": [], "DB": []
+  };
 
-  function fillDropdowns() {
-    const src = document.getElementById('src'), dst = document.getElementById('dst');
-    Object.keys(nodes).sort().forEach(n => {
-      src.add(new Option("Node " + n, n));
-      dst.add(new Option("Node " + n, n));
-    });
-    dst.value = "J";
-  }
+  function resize() {
+    const box = document.getElementById('c-wrap');
+    canvas.width = box.clientWidth; canvas.height = box.clientHeight;
+    draw();
+  }
 
-  function resizeCanvas() {
-    const box = document.getElementById('c-box');
-    canvas.width = box.clientWidth;
-    canvas.height = box.clientHeight;
-    drawGraph();
-  }
+  function getRiskColor(r) {
+    if(r <= 3) return "#39ff14"; if(r <= 6) return "#ff9d00";
+    if(r <= 9) return "#ff3131"; return "#b100ff";
+  }
 
-  function getPos(n) { return { x: nodes[n].x * canvas.width, y: nodes[n].y * canvas.height }; }
+  function draw(path = []) {
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    const pos = (n) => ({ x: nodes[n].x * canvas.width, y: nodes[n].y * canvas.height });
 
-  function drawGraph(activePath = []) {
-    ctx.clearRect(0,0,canvas.width, canvas.height);
-    const s = document.getElementById('src').value, t = document.getElementById('dst').value;
+    for(let u in graph) {
+      const p1 = pos(u);
+      graph[u].forEach(v => {
+        const p2 = pos(v);
+        const active = path.includes(u) && path.includes(v);
+        ctx.setLineDash(active ? [] : [5, 5]); // Dashed lines for inactive
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+        ctx.strokeStyle = active ? "#ffcc00" : "#222";
+        ctx.lineWidth = active ? 6 : 1; ctx.stroke();
+      });
+    }
+    ctx.setLineDash([]); 
 
-    for(let u in graph) {
-      const p1 = getPos(u);
-      graph[u].forEach(edge => {
-        const p2 = getPos(edge.to);
-        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
-        ctx.strokeStyle = (activePath.includes(u) && activePath.includes(edge.to)) ? "#ffcc00" : "#222";
-        ctx.lineWidth = (activePath.includes(u) && activePath.includes(edge.to)) ? 4 : 2;
-        ctx.stroke();
-        ctx.fillStyle = "#555"; ctx.font = "bold 12px Arial";
-        ctx.fillText(edge.w, (p1.x + p2.x)/2, (p1.y + p2.y)/2 - 5);
-      });
-    }
+    for(let n in nodes) {
+      const p = pos(n);
+      const sel = n === document.getElementById('src').value;
+      const inPath = path.includes(n);
+      
+      // Node Glow
+      if(inPath) {
+        ctx.shadowBlur = 15; ctx.shadowColor = getRiskColor(nodes[n].r);
+      }
+      
+      ctx.beginPath(); ctx.arc(p.x, p.y, 22, 0, Math.PI*2);
+      ctx.fillStyle = sel ? "#00d4ff" : "#050505"; ctx.fill();
+      ctx.strokeStyle = getRiskColor(nodes[n].r); ctx.lineWidth = (sel || inPath) ? 5 : 2; ctx.stroke();
+      ctx.shadowBlur = 0;
 
-    for(let n in nodes) {
-      const p = getPos(n);
-      ctx.beginPath(); ctx.arc(p.x, p.y, 18, 0, Math.PI*2);
-      ctx.fillStyle = (n === s) ? "#00d4ff" : (n === t) ? "#ff3e3e" : "#111";
-      ctx.fill(); ctx.strokeStyle = "#444"; ctx.stroke();
-      ctx.fillStyle = "#fff"; ctx.font = "bold 12px Arial"; ctx.textAlign="center";
-      ctx.fillText(n, p.x, p.y + 4);
-    }
-  }
+      ctx.fillStyle = "#fff"; ctx.font = "18px Arial"; ctx.textAlign="center";
+      ctx.fillText(nodes[n].icon, p.x, p.y + 7);
+      
+      ctx.fillStyle = "#888"; ctx.font = "bold 10px monospace";
+      ctx.fillText(`${n}`, p.x, p.y - 32);
+      ctx.fillStyle = getRiskColor(nodes[n].r);
+      ctx.fillText(`(R:${nodes[n].r})`, p.x, p.y - 42);
+    }
+  }
 
-  async function executeAttack() {
-    const s = document.getElementById('src').value, t = document.getElementById('dst').value;
-    if(s === t) return;
+  async function runAudit() {
+    const s = document.getElementById('src').value, t = document.getElementById('dst').value;
+    if(s === t) return;
 
-    let distances = {}, prev = {}, pq = [[0, s]];
-    for(let n in nodes) distances[n] = Infinity;
-    distances[s] = 0;
+    let dist = {}, prev = {}, pq = [[0, s]];
+    Object.keys(nodes).forEach(n => dist[n] = Infinity);
+    dist[s] = nodes[s].r;
 
-    while(pq.length) {
-      pq.sort((a,b) => a[0]-b[0]);
-      let [d, u] = pq.shift();
-      if(u === t) break;
-      if(graph[u]) {
-        graph[u].forEach(edge => {
-          let alt = distances[u] + edge.w;
-          if(alt < distances[edge.to]) { distances[edge.to] = alt; prev[edge.to] = u; pq.push([alt, edge.to]); }
-        });
-      }
-    }
+    while(pq.length) {
+      pq.sort((a,b) => a[0]-b[0]);
+      let [d, u] = pq.shift();
+      if(u === t) break;
+      if(graph[u]) {
+        graph[u].forEach(v => {
+          let alt = dist[u] + nodes[v].r;
+          if(alt < dist[v]) { dist[v] = alt; prev[v] = u; pq.push([alt, v]); }
+        });
+      }
+    }
 
-    let path = [], curr = t;
-    while(curr) { path.unshift(curr); curr = prev[curr]; }
-    if(path[0] !== s) { document.getElementById('status').innerHTML = "No Path Exists!"; return; }
+    let path = [], curr = t, mathArr = [];
+    while(curr) { path.unshift(curr); mathArr.unshift(nodes[curr].r); curr = prev[curr]; }
 
-    for(let i=0; i<path.length-1; i++) {
-      let p1 = getPos(path[i]), p2 = getPos(path[i+1]);
-      for(let step=0; step<=1; step+=0.1) {
-        drawGraph(path.slice(0, i+1));
-        ctx.font = "28px Arial"; 
-        ctx.fillText("😈", p1.x + (p2.x-p1.x)*step, (p1.y + (p2.y-p1.y)*step) + 10); 
-        await new Promise(r => setTimeout(r, 30));
-      }
-    }
-    drawGraph(path);
-    document.getElementById('status').innerHTML = `HACK SUCCESS!<br>Total Risk Score: <span style="color:white">${distances[t]}</span>`;
-  }
+    document.getElementById('math-display').innerText = "Σ " + mathArr.join(' + ') + " = " + dist[t];
+    document.getElementById('path-display').innerText = "⛓️ " + path.join(' → ');
 
-  window.onload = () => { fillDropdowns(); window.addEventListener('resize', resizeCanvas); };
+    for(let i=0; i<path.length-1; i++) {
+        draw(path.slice(0, i+1));
+        await new Promise(r => setTimeout(r, 250));
+    }
+    draw(path);
+
+    document.getElementById('final-path').innerText = "📂 " + path.join(' ➔ ');
+    document.getElementById('final-total').innerText = dist[t];
+    document.getElementById('final-cat').innerText = dist[t] > 25 ? "🚨 CRITICAL" : "✅ SECURE";
+  }
+
+  window.onload = () => {
+    const s = document.getElementById('src'), d = document.getElementById('dst');
+    Object.keys(nodes).forEach(n => {
+      s.add(new Option(nodes[n].icon + " " + n, n));
+      d.add(new Option(nodes[n].icon + " " + n, n));
+    });
+    d.value = "DB";
+    window.addEventListener('resize', resize);
+  };
 </script>
 </body>
-</html>
+</html> 
