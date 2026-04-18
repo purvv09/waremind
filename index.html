@@ -1,212 +1,303 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>CloudSec: Risk-Sum Auditor Pro 🛡️</title>
-<style>
-  :root { 
-    --bg: #030305; --panel: rgba(15, 15, 20, 0.95);
-    --gold: #ffcc00; --cyan: #00d4ff; --red: #ff3131;
-    --low: #39ff14; --med: #ff9d00; --high: #ff3131; --crit: #b100ff;
-  }
-  body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; overflow: hidden; }
-  
-  .screen { width: 100vw; height: 100vh; display: none; padding: 25px; box-sizing: border-box; flex-direction: column; align-items: center; justify-content: center; }
-  .active { display: flex; animation: fadeIn 0.4s ease; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Security | Advanced Path Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+          
+            --bg: #030712;
+            --panel: rgba(17, 24, 39, 0.8);
+            --accent: #60a5fa;
+            --accent-glow: rgba(96, 165, 250, 0.3);
+            --danger: #f87171;
+            --border: rgba(255, 255, 255, 0.05);
+            --text: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
 
-  .container { display: flex; gap: 20px; width: 100%; height: 90vh; max-width: 1600px; }
-  .canvas-box { flex: 3; background: #000; border-radius: 15px; border: 1px solid #1a1a1a; position: relative; box-shadow: inset 0 0 50px #000; }
-  #main-canvas { width: 100%; height: 100%; border-radius: 15px; }
+        * { box-sizing: border-box; }
 
-  .sidebar { flex: 1; background: var(--panel); border-radius: 15px; padding: 25px; border: 1px solid #222; display: flex; flex-direction: column; backdrop-filter: blur(10px); }
-  
-  h2 { color: var(--gold); font-size: 1.1rem; margin: 0 0 20px 0; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; }
-  
-  label { font-size: 0.7rem; color: #888; text-transform: uppercase; margin-top: 10px; }
-  select, button { width: 100%; padding: 14px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; font-weight: bold; font-family: inherit; }
-  select { background: #080808; color: var(--gold); cursor: pointer; }
-  
-  button { background: var(--gold); color: #000; cursor: pointer; border: none; text-transform: uppercase; transition: 0.3s; }
-  button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 204, 0, 0.3); }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
 
-  .calc-panel { margin-top: auto; background: #000; padding: 15px; border-radius: 8px; border-left: 4px solid var(--cyan); }
-  .math-font { font-family: 'Courier New', monospace; font-size: 1.1rem; color: var(--gold); font-weight: bold; }
-</style>
+        /* --- BACKGROUND DECORATION --- */
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(30, 58, 138, 0.15), transparent 80%),
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            z-index: -1;
+        }
+
+        /* --- PRELOADER --- */
+        #preloader {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.8s ease;
+        }
+
+        .radar {
+            width: 120px;
+            height: 120px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .radar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--accent) 0deg, transparent 90deg);
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* --- MAIN INTERFACE --- */
+        #main-ui {
+            display: none;
+            width: 100%;
+            max-width: 1100px;
+            margin: auto;
+            padding: 20px;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            opacity: 0;
+            transform: scale(0.98);
+            transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .panel {
+            background: var(--panel);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Left Column: Selector */
+        .sidebar h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+            margin: 0 0 20px 0;
+        }
+
+        .company-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .company-card:hover {
+            background: rgba(96, 165, 250, 0.1);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .company-info span {
+            display: block;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Right Column: Console */
+        .console {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .status-pill {
+            padding: 4px 12px;
+            border-radius: 100px;
+            background: rgba(248, 113, 113, 0.1);
+            color: var(--danger);
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(248, 113, 113, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+            animation: shadow-pulse 1.5s infinite;
+        }
+
+        @keyframes shadow-pulse {
+            0% { box-shadow: 0 0 0 0px rgba(248, 113, 113, 0.4); }
+            100% { box-shadow: 0 0 0 8px rgba(248, 113, 113, 0); }
+        }
+
+        .log-area {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.8;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .log-entry { margin-bottom: 4px; }
+        .log-ts { color: var(--accent); margin-right: 10px; }
+    </style>
 </head>
 <body>
 
-<div id="p1" class="screen active">
-  <h1 style="font-size: 3.5rem; letter-spacing: 8px; color: var(--gold); margin:0;">🚀 AUDITOR V3.1</h1>
-  <p style="color: #666; letter-spacing: 3px;">🛰️ Quantitative Risk-Score Pathfinding Simulator</p>
-  <button onclick="goToPage('p4')" style="width: 280px; margin-top: 30px;">Initialize Console 🖥️</button>
+<div class="grid-bg"></div>
+
+<div id="preloader">
+    <div class="radar"></div>
+    <div style="font-family: 'JetBrains Mono'; font-size: 14px; letter-spacing: 4px;">SYSTEM_SCANNING...</div>
+    <div id="load-msg" style="color: var(--text-muted); font-size: 12px; margin-top: 10px;">Initializing core modules</div>
 </div>
 
-<div id="p4" class="screen">
-  <div class="container">
-    <div class="canvas-box" id="c-wrap"><canvas id="main-canvas"></canvas></div>
-    <div class="sidebar">
-      <h2>🛡️ SOC Command Center</h2>
-      <label>📍 Entry Point</label>
-      <select id="src" onchange="draw()"></select>
-      <label>🎯 Target Asset</label>
-      <select id="dst" onchange="draw()"></select>
-      
-      <button onclick="runAudit()">Compute Breach Path 💀</button>
+<div id="main-ui">
+    <aside class="panel sidebar">
+        <h2>Target Selection</h2>
+        <div class="company-card">
+            <div class="company-info"><strong>Google</strong><span>Global Node Alpha</span></div>
+            <div style="font-size: 10px; color: var(--accent);">SECURE</div>
+        </div>
+        <div class="company-card" style="border-color: var(--danger);">
+            <div class="company-info"><strong>Microsoft</strong><span>Azure Instance 09</span></div>
+            <div style="font-size: 10px; color: var(--danger);">BREACH</div>
+        </div>
+        <div class="company-card">
+            <div class="company-info"><strong>Amazon</strong><span>AWS-East-1</span></div>
+            <div style="font-size: 10px; color: var(--text-muted);">WAITING</div>
+        </div>
+        <div class="company-card">
+            <div class="company-info"><strong>Apple</strong><span>iCloud-Core</span></div>
+            <div style="font-size: 10px; color: var(--text-muted);">WAITING</div>
+        </div>
+    </aside>
 
-      <div class="calc-panel" id="log">
-        <div style="font-size: 10px; color: #555; margin-bottom: 5px;">🧮 LIVE CALCULATION:</div>
-        <div id="math-display" class="math-font">0 + 0 = 0</div>
-        <div id="path-display" style="font-size: 11px; color: #888; margin-top: 10px;">Waiting for scan... 📡</div>
-      </div>
-      
-      <button onclick="goToPage('p5')" style="background: transparent; border: 1px solid #333; color: #444; font-size: 10px; margin-top: 15px;">📜 View Forensic Report</button>
-    </div>
-  </div>
-</div>
-
-<div id="p5" class="screen">
-  <div style="background: var(--panel); padding: 50px; border-radius: 20px; border: 1px solid #333; width: 80%; text-align: left;">
-    <h1 style="color: var(--gold); margin:0;">📊 Post-Exploit Analysis</h1>
-    <hr style="border:0; border-top:1px solid #222; margin: 20px 0;">
-    <p style="color:var(--cyan)">📑 VULNERABILITY VECTOR:</p>
-    <h2 id="final-path" style="font-family: monospace;">--</h2>
-    <div style="display: flex; gap: 50px; margin-top: 30px;">
-        <div><p style="color:#666;margin:0;">📉 Risk Accumulation:</p><h1 id="final-total" style="color:var(--gold); font-size: 3.5rem; margin:0;">0</h1></div>
-        <div><p style="color:#666;margin:0;">⚠️ Threat Level:</p><h2 id="final-cat" style="color:var(--red); margin:0; font-size: 2rem;">STABLE</h2></div>
-    </div>
-    <button onclick="goToPage('p4')" style="margin-top: 40px; width: 220px;">🔄 New Audit Session</button>
-  </div>
+    <main class="panel console">
+        <div class="console-header">
+            <div>
+                <h1 style="margin: 0; font-size: 18px;">Threat Analysis Stream</h1>
+                <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--text-muted);">Tracing recursive entry points via neural pathing...</p>
+            </div>
+            <div class="status-pill">
+                <div class="pulse"></div> 1 UNRESOLVED THREAT
+            </div>
+        </div>
+        
+        <div class="log-area" id="log-area">
+            </div>
+    </main>
 </div>
 
 <script>
-  function goToPage(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    if(id === 'p4') setTimeout(resize, 50);
-  }
+    const logs = [
+        "Initializing secure handshake...",
+        "Validating SSL certificate chains...",
+        "Scanning internal subnets for anomalies...",
+        "Packet inspection: Sector 09... [OK]",
+        "Packet inspection: Sector 10... [ALERT]",
+        "Unauthorized access attempt blocked at 192.168.1.42",
+        "Encrypted tunnel established.",
+        "Detecting path origin..."
+    ];
 
-  const canvas = document.getElementById('main-canvas'), ctx = canvas.getContext('2d');
+    async function runInit() {
+        const msg = document.getElementById('load-msg');
+        
+        await new Promise(r => setTimeout(r, 1500));
+        msg.innerText = "Connecting to global database...";
+        
+        await new Promise(r => setTimeout(r, 1500));
+        msg.style.color = "#f87171";
+        msg.innerText = "CRITICAL THREAT DETECTED IN NODE 09";
+        
+        await new Promise(r => setTimeout(r, 1000));
+        document.getElementById('preloader').style.opacity = '0';
+        
+        setTimeout(() => {
+            document.getElementById('preloader').style.display = 'none';
+            const ui = document.getElementById('main-ui');
+            ui.style.display = 'grid';
+            setTimeout(() => {
+                ui.style.opacity = '1';
+                ui.style.transform = 'scale(1)';
+                startLogStream();
+            }, 50);
+        }, 800);
+    }
 
-  const nodes = { 
-    "WAF": {r: 2, icon: "🛡️", x:0.08, y:0.5},
-    "LB": {r: 3, icon: "🔀", x:0.25, y:0.25},
-    "DMZ": {r: 5, icon: "🚧", x:0.25, y:0.75},
-    "API_GTW": {r: 7, icon: "🚪", x:0.45, y:0.75},
-    "APP_SVR": {r: 8, icon: "🧠", x:0.65, y:0.5},
-    "SIEM": {r: 2, icon: "👁️", x:0.75, y:0.15},
-    "HSM": {r: 10, icon: "🔑", x:0.8, y:0.85},
-    "CORE": {r: 10, icon: "🏦", x:0.85, y:0.4},
-    "DB": {r: 10, icon: "🔒", x:0.94, y:0.6}
-  };
+    function startLogStream() {
+        const area = document.getElementById('log-area');
+        let i = 0;
+        const interval = setInterval(() => {
+            if (i < logs.length) {
+                const div = document.createElement('div');
+                div.className = 'log-entry';
+                const now = new Date().toLocaleTimeString();
+                div.innerHTML = `<span class="log-ts">[${now}]</span> ${logs[i]}`;
+                area.appendChild(div);
+                area.scrollTop = area.scrollHeight;
+                i++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 600);
+    }
 
-  const graph = {
-    "WAF": ["LB", "DMZ"],
-    "LB": ["API_GTW"],
-    "DMZ": ["API_GTW"],
-    "API_GTW": ["APP_SVR", "HSM"],
-    "APP_SVR": ["CORE", "SIEM"],
-    "HSM": ["CORE"], "CORE": ["DB"], "SIEM": [], "DB": []
-  };
-
-  function resize() {
-    const box = document.getElementById('c-wrap');
-    canvas.width = box.clientWidth; canvas.height = box.clientHeight;
-    draw();
-  }
-
-  function getRiskColor(r) {
-    if(r <= 3) return "#39ff14"; if(r <= 6) return "#ff9d00";
-    if(r <= 9) return "#ff3131"; return "#b100ff";
-  }
-
-  function draw(path = []) {
-    ctx.clearRect(0,0,canvas.width, canvas.height);
-    const pos = (n) => ({ x: nodes[n].x * canvas.width, y: nodes[n].y * canvas.height });
-
-    for(let u in graph) {
-      const p1 = pos(u);
-      graph[u].forEach(v => {
-        const p2 = pos(v);
-        const active = path.includes(u) && path.includes(v);
-        ctx.setLineDash(active ? [] : [5, 5]); // Dashed lines for inactive
-        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
-        ctx.strokeStyle = active ? "#ffcc00" : "#222";
-        ctx.lineWidth = active ? 6 : 1; ctx.stroke();
-      });
-    }
-    ctx.setLineDash([]); 
-
-    for(let n in nodes) {
-      const p = pos(n);
-      const sel = n === document.getElementById('src').value;
-      const inPath = path.includes(n);
-      
-      // Node Glow
-      if(inPath) {
-        ctx.shadowBlur = 15; ctx.shadowColor = getRiskColor(nodes[n].r);
-      }
-      
-      ctx.beginPath(); ctx.arc(p.x, p.y, 22, 0, Math.PI*2);
-      ctx.fillStyle = sel ? "#00d4ff" : "#050505"; ctx.fill();
-      ctx.strokeStyle = getRiskColor(nodes[n].r); ctx.lineWidth = (sel || inPath) ? 5 : 2; ctx.stroke();
-      ctx.shadowBlur = 0;
-
-      ctx.fillStyle = "#fff"; ctx.font = "18px Arial"; ctx.textAlign="center";
-      ctx.fillText(nodes[n].icon, p.x, p.y + 7);
-      
-      ctx.fillStyle = "#888"; ctx.font = "bold 10px monospace";
-      ctx.fillText(`${n}`, p.x, p.y - 32);
-      ctx.fillStyle = getRiskColor(nodes[n].r);
-      ctx.fillText(`(R:${nodes[n].r})`, p.x, p.y - 42);
-    }
-  }
-
-  async function runAudit() {
-    const s = document.getElementById('src').value, t = document.getElementById('dst').value;
-    if(s === t) return;
-
-    let dist = {}, prev = {}, pq = [[0, s]];
-    Object.keys(nodes).forEach(n => dist[n] = Infinity);
-    dist[s] = nodes[s].r;
-
-    while(pq.length) {
-      pq.sort((a,b) => a[0]-b[0]);
-      let [d, u] = pq.shift();
-      if(u === t) break;
-      if(graph[u]) {
-        graph[u].forEach(v => {
-          let alt = dist[u] + nodes[v].r;
-          if(alt < dist[v]) { dist[v] = alt; prev[v] = u; pq.push([alt, v]); }
-        });
-      }
-    }
-
-    let path = [], curr = t, mathArr = [];
-    while(curr) { path.unshift(curr); mathArr.unshift(nodes[curr].r); curr = prev[curr]; }
-
-    document.getElementById('math-display').innerText = "Σ " + mathArr.join(' + ') + " = " + dist[t];
-    document.getElementById('path-display').innerText = "⛓️ " + path.join(' → ');
-
-    for(let i=0; i<path.length-1; i++) {
-        draw(path.slice(0, i+1));
-        await new Promise(r => setTimeout(r, 250));
-    }
-    draw(path);
-
-    document.getElementById('final-path').innerText = "📂 " + path.join(' ➔ ');
-    document.getElementById('final-total').innerText = dist[t];
-    document.getElementById('final-cat').innerText = dist[t] > 25 ? "🚨 CRITICAL" : "✅ SECURE";
-  }
-
-  window.onload = () => {
-    const s = document.getElementById('src'), d = document.getElementById('dst');
-    Object.keys(nodes).forEach(n => {
-      s.add(new Option(nodes[n].icon + " " + n, n));
-      d.add(new Option(nodes[n].icon + " " + n, n));
-    });
-    d.value = "DB";
-    window.addEventListener('resize', resize);
-  };
+    window.onload = runInit;
 </script>
+
 </body>
 </html> 
+<h1>Page 1</h1>
+
+<script>
+setTimeout(() => {
+    window.location.href = "page2.html";
+}, 3000);
+</script>
